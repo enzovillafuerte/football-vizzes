@@ -23,6 +23,8 @@ from matplotlib import rcParams
 from matplotlib.colors import to_rgba
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.image as mpimg
+import matplotlib.patches as mpatches
+import matplotlib.gridspec as gridspec
 from mplsoccer import Pitch, FontManager, Sbopen
 import urllib
 from PIL import Image
@@ -236,7 +238,7 @@ predictions_output = montecarlo_simulation(df, home_team, away_team)
 ## Section 3 - Viz Generation | Statsbomb as Reference
 ############################################################################################
 
-# xG Flowchart
+# ------------- xG Flowchart ---------------------
 # Creating dummy data for minute axis (min 0 to 100)
 teams = df['team'].unique()
 dummy_data = pd.DataFrame({
@@ -257,10 +259,18 @@ df['cumulative_xG'] = df.groupby('team')['xG'].cumsum()
 # Plotting xG flowchart
 plt.figure(figsize=(12, 6))
 for team, group in df.groupby('team'):
-    plt.plot(group['minute'], group['cumulative_xG'], label=team, marker='o')
+    plt.plot(group['minute'], group['cumulative_xG'], label=team, marker='x')
+
+# Overlay markers for goals
+goal_shots = df[df['result'] == 'Goal']
+plt.scatter(goal_shots['minute'], goal_shots['cumulative_xG'], color='red', label='Goal', zorder=5, edgecolor='black', s=100)
+
+# Annotate with player names for goals
+for _, row in goal_shots.iterrows():
+    plt.text(row['minute'] - 8.5, row['cumulative_xG'], row['player'], fontsize=8, color='black', va='bottom', ha='left')
 
 # Adding titles and labels
-plt.title('xG Flowchart', fontsize=16)
+plt.title(f'{home_team} vs {away_team} xG Flowchart', fontsize=16)
 plt.xlabel('Minute', fontsize=12)
 plt.ylabel('Cumulative xG', fontsize=12)
 plt.legend(title='Team')
@@ -269,9 +279,9 @@ plt.grid(True, linestyle='--', alpha=0.6)
 plt.tight_layout()
 plt.show()
 
+# ------------- Montecarlo Bars ---------------------
 
-print(predictions_output)
-print('Success')
+
 
 # To run python montecarlo/post_game_viz.py 'url'
 # Sample: python montecarlo/post_game_viz.py 'https://understat.com/match/26733'
