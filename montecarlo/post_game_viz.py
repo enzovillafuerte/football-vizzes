@@ -43,6 +43,7 @@ if len(sys.argv) <2:
 # Storing the url     
 url = sys.argv[1]
 
+"""
 # Scraping from Understat
 # Using requests to get the webpage and let Beautiful soup to parse the page
 res = requests.get(url)  
@@ -116,25 +117,125 @@ for index in range(len(data_away)):
         if key == 'player':
             player.append(data_away[index][key])      
  
-            
+# Extracting home and away teams programatically
+home_team = data_home[0].get('h_team', 'Unknown') if data_home else 'Unknown'
+away_team = data_away[0].get('a_team', 'Unknown') if data_away else 'Unknown'
+
 # create the pandas dataframe with the lists previously created with the loops
             
 col_names = ['x','y','xG','result','team', 'minute', 'player']
 df = pd.DataFrame([x,y,xG,result,team, minute, player],index=col_names)
 df = df.T      
 
+# Save the dataset to use it as baseline for the Montecarlo so we don't send too many requests to the website while testing
+#df.to_csv('montecarlo/baseline_df.csv', index=False)
+"""
+
 ############################################################################################
-## Section 2 - Montecarlo Simulations - work with the sample: Mallorca vs Barcelona
+## Section 2 - Montecarlo Simulations - work with the sample: Arsenal vs Man Utd
 ############################################################################################
+# """
 # sample dataset to use as baseline
+df = pd.read_csv('montecarlo/baseline_df.csv')
+
+# sample team naming to use as baseline
+home_team = 'Arsenal'
+away_team = 'Manchester United'
+# """
+
+# Run the montecarlo simulations
+def montecarlo_simulation(df, home_team, away_team):
+
+    def simulate_game(df, home_team, away_team):
+        # Filtering the dataset to keep two different dataframes from each team
+        home_shots = df[df['team'] == home_team]
+        away_shots = df[df['team'] == away_team]
+
+        # Simulating Home Team goals
+        # Defining a counter to count the number of goals
+        home_goals = 0
+
+        # Making sure we only execute if there are records (shots) in the dataframe
+        # Some teams may have done so bad that did not shoot in the entire game. Rare but possible.
+        if home_shots['xG'].shape[0] > 0:
+            for shot in home_shots['xG']:
+
+                # Sampling a random number from 0 and 1 following uniform distribution
+                prob = np.random.random()
+
+                # If the random number is less than the Expected Goals (xG) then it counts as a goal
+                if prob < shot:
+                    home_goals += 1
+
+        # Repeat for away team
+        away_goals = 0
+
+        if away_shots['xG'].shape[0] >0:
+            for shot in away_shots['xG']:
+                prob = np.random.random()
+                if prob < shot:
+                    away_goals += 1
+
+        return {'home_goals': home_goals, 'away_goals': away_goals}
+
+    
+    # Define the number of iterations
+    k = 10000
+    
+    # H2H (Head to Head occurrences)
+    home = 0
+    draw = 0
+    away = 0
+
+    # O/U ocurrences
+    o_2_5 = 0
+    u_2_5 = 0
+
+    # Creating a for loop to populate the H2H and O2.5 variables based on simulation
+    for i in range(k):
+
+        # Apply the simulation for iteration i
+        simulation = simulate_game(df, home_team, away_team)
+
+        # If statements to assign winner and O/u result
+        if simulation['home_goals'] > simulation['away_goals']:
+            home += 1
+            if simulation['home_goals'] + simulation['away_goals'] > 2.5:
+                o_2_5 += 1
+            else:
+                u_2_5 += 1
+        elif simulation['home_goals'] < simulation['away_goals']:
+            away += 1
+            if simulation['home_goals'] + simulation['away_goals'] > 2.5:
+                o_2_5 += 1
+            else:
+                u_2_5 += 1
+        else:
+            draw += 1
+            if simulation['home_goals'] + simulation['away_goals'] > 2.5:
+                o_2_5 += 1
+            else:
+                u_2_5 += 1
+
+    # Calculating probabilities of each outcome
+    home_prob = home / k
+    draw_prob = draw / k
+    away_prob = away / k
+
+    o2_5_prob = o_2_5 / k 
+    u2_5_prob = u_2_5 / k
+
+    return {'home_h2h': home_prob, 'draw_h2h': draw_prob, 'away_h2h': away_prob, '+2.5':o2_5_prob, '-2.5':u2_5_prob}
 
 
-# Further data Cleansing to only keep shot_related data
+
+predictions_output = montecarlo_simulation(df, home_team, away_team)
 
 
 ############################################################################################
 ## Section 3 - Viz Generation
 ############################################################################################
+
 
 print(df)
 print('Success')
