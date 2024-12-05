@@ -1,0 +1,9 @@
+numpy>=1.21.0
+pandas>=1.3.0
+seaborn>=0.11.2
+beautifulsoup4>=4.10.0
+selenium>=4.0.0
+supabase>=0.3.0
+matplotlib>=3.4.3
+mplsoccer>=1.0.0
+Pillow>=8.3.1
