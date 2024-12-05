@@ -225,19 +225,52 @@ def montecarlo_simulation(df, home_team, away_team):
     o2_5_prob = o_2_5 / k 
     u2_5_prob = u_2_5 / k
 
-    return {'home_h2h': home_prob, 'draw_h2h': draw_prob, 'away_h2h': away_prob, '+2.5':o2_5_prob, '-2.5':u2_5_prob}
+    return {home_team: home_prob, 'Draw': draw_prob, away_team: away_prob, '+2.5':o2_5_prob, '-2.5':u2_5_prob}
 
 
-
+# Running the montecarlo function
 predictions_output = montecarlo_simulation(df, home_team, away_team)
 
 
 ############################################################################################
-## Section 3 - Viz Generation
+## Section 3 - Viz Generation | Statsbomb as Reference
 ############################################################################################
 
+# xG Flowchart
+# Creating dummy data for minute axis (min 0 to 100)
+teams = df['team'].unique()
+dummy_data = pd.DataFrame({
+    'x': [0] * len(teams) * 2,  # Dummy values for x-coordinate
+    'y': [0] * len(teams) * 2,  # Dummy values for y-coordinate
+    'xG': [0] * len(teams) * 2,  # No xG for dummy rows
+    'result': ['Dummy'] * len(teams) * 2,  # Dummy result
+    'team': [team for team in teams for _ in range(2)],
+    'minute': [0, 100] * len(teams),
+    'player': [''] * len(teams) * 2  # No player for dummy rows
+})
 
-print(df)
+df = pd.concat([df, dummy_data], ignore_index=True)
+df = df.sort_values(by=['team', 'minute'])
+
+df['cumulative_xG'] = df.groupby('team')['xG'].cumsum()
+
+# Plotting xG flowchart
+plt.figure(figsize=(12, 6))
+for team, group in df.groupby('team'):
+    plt.plot(group['minute'], group['cumulative_xG'], label=team, marker='o')
+
+# Adding titles and labels
+plt.title('xG Flowchart', fontsize=16)
+plt.xlabel('Minute', fontsize=12)
+plt.ylabel('Cumulative xG', fontsize=12)
+plt.legend(title='Team')
+plt.grid(True, linestyle='--', alpha=0.6)
+
+plt.tight_layout()
+plt.show()
+
+
+print(predictions_output)
 print('Success')
 
 # To run python montecarlo/post_game_viz.py 'url'
