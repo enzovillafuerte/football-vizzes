@@ -237,6 +237,12 @@ predictions_output = montecarlo_simulation(df, home_team, away_team)
 ############################################################################################
 ## Section 3 - Viz Generation | Statsbomb as Reference
 ############################################################################################
+# color palette:
+widget_background = '#F2F1ED'
+primary_text = '#223459'
+home_color = '#6A5AAA'
+away_color = '#FFB142'
+goal_tickmark_color = '#B45082'
 
 # ------------- xG Flowchart ---------------------
 # Creating dummy data for minute axis (min 0 to 100)
@@ -257,28 +263,41 @@ df = df.sort_values(by=['team', 'minute'])
 df['cumulative_xG'] = df.groupby('team')['xG'].cumsum()
 
 # Plotting xG flowchart
-plt.figure(figsize=(6, 3.5))
-for team, group in df.groupby('team'):
-    plt.plot(group['minute'], group['cumulative_xG'], label=team, marker='x')
+fig, ax = plt.subplots(figsize=(6, 3.5))  # Create figure and axis
+
+# Set background of the axis to light gray
+ax.set_facecolor(widget_background)
+
+colors = [home_color, away_color]  
+for i, (team, group) in enumerate(df.groupby('team')):
+    ax.plot(group['minute'], group['cumulative_xG'], label=team, marker='x', color=colors[i % len(colors)])
+
+#for team, group in df.groupby('team'):
+#    ax.plot(group['minute'], group['cumulative_xG'], label=team, marker='x')
 
 # Overlay markers for goals
 goal_shots = df[df['result'] == 'Goal']
-plt.scatter(goal_shots['minute'], goal_shots['cumulative_xG'], color='red', label='Goal', zorder=5, edgecolor='black', s=50)
+ax.scatter(goal_shots['minute'], goal_shots['cumulative_xG'], color=goal_tickmark_color, label='Goal', zorder=5, edgecolor='black', s=50)
 
 # Annotate with player names for goals
 for _, row in goal_shots.iterrows():
-    plt.text(row['minute'] - 18.5, row['cumulative_xG'], row['player'], fontsize=8, color='black', va='bottom', ha='left')
+    ax.text(row['minute'] - 18.5, row['cumulative_xG'], row['player'], fontsize=8, color='black', va='bottom', ha='left')
 
 # Adding titles and labels
-plt.title(f'{home_team} vs {away_team} xG Flowchart', fontsize=8)
-plt.xlabel('Minute', fontsize=6)
-plt.ylabel('Cumulative xG', fontsize=6)
-plt.legend(fontsize=6)
-plt.grid(True, linestyle='--', alpha=0.6)
+ax.set_title(f'{home_team} vs {away_team} xG Flowchart', fontsize=8)
+ax.set_xlabel('Minute', fontsize=6)
+ax.set_ylabel('Cumulative xG', fontsize=6)
+ax.legend(fontsize=6)
+ax.grid(True, linestyle='--', alpha=0.6)
+
+# Smaller tick labels
+ax.tick_params(axis='both', which='major', labelsize=5)  # Adjust tick label size
+ax.set_xticks(range(0, 105, 5))  # Set ticks from 0 to 100 with a step of 5
 
 plt.tight_layout()
-#plt.show()
-plt.savefig('montecarlo/Figures/xGFlowchart.png')
+# Save figure with blue outer background and light gray inner axis background
+plt.savefig('montecarlo/Figures/xGFlowchart.png', facecolor=widget_background)
+
 
 # ------------- Montecarlo Bars ---------------------
 
@@ -312,7 +331,7 @@ plt.tight_layout()
 # Display the chart
 
 plt.tight_layout()
-plt.savefig('montecarlo/Figures/H2HMontecarlo.png')
+plt.savefig('montecarlo/Figures/H2HMontecarlo.png', facecolor=widget_background)
 #plt.show()
 
 # O/U
@@ -345,7 +364,7 @@ plt.tight_layout()
 # Display the chart
 
 plt.tight_layout()
-plt.savefig('montecarlo/Figures/OUMontecarlo.png')
+plt.savefig('montecarlo/Figures/OUMontecarlo.png', facecolor=widget_background)
 #plt.show()
 
 
@@ -389,7 +408,7 @@ width, height = 700, 600
 c = canvas.Canvas(f'montecarlo/Reports/{home_team} vs {away_team}.pdf', pagesize=(width, height))
 
 # Setting up background color -- change when decide color palette
-c.setFillColorRGB(0.10588235, 0.11764706, 0.13333333)  
+c.setFillColorRGB(0.913725, 0.905882, 0.882353)  # Color for #E9E7E1
 c.rect(0, 0, 780, 900, fill=True)
 
 # xG Flowchart- Sample of Images Import
@@ -407,7 +426,7 @@ pdfmetrics.registerFont(TTFont('RobotoThin', font_data))
 ############ Title
 c.setFont('RobotoThin', 30)
 c.setFillColorRGB(1,1,1)  # Set text color to white
-c.setFillColor('white') # change color dynamically to match home_team
+c.setFillColor(primary_text) # change color dynamically to match home_team
 title = f"{home_team} vs {away_team}"
 c.drawString(50, 550, title)
 
@@ -421,7 +440,7 @@ away_ov_data = round(away_ov_data['xG'].sum(),2)
 
 c.setFont('RobotoThin', 30)
 c.setFillColorRGB(1,1,1)  # Set text color to white
-c.setFillColor('white') # change color dynamically to match home_team
+c.setFillColor(primary_text) # change color dynamically to match home_team
 title = f"{home_ov_data} - {away_ov_data}"
 c.drawString(280, 470, title)
 
@@ -431,7 +450,7 @@ away_score_data = len(df[(df['team']==away_team) & (df['result'] == 'Goal')])
 
 c.setFont('RobotoThin', 30)
 c.setFillColorRGB(1,1,1)  # Set text color to white
-c.setFillColor('white') # change color dynamically to match home_team
+c.setFillColor(primary_text) # change color dynamically to match home_team
 title = f"{home_score_data} - {away_score_data}"
 c.drawString(50, 520, title)
 
@@ -439,7 +458,7 @@ c.drawString(50, 520, title)
 ############ Text - Probabilities for H2H
 c.setFont('RobotoThin', 10)
 c.setFillColorRGB(1,1,1)  # Set text color to white
-c.setFillColor('white') # change color dynamically to match home_team
+c.setFillColor(primary_text) # change color dynamically to match home_team
 
 
 # Example labels for the predictions
@@ -459,7 +478,7 @@ for prediction in formatted_predictions:
 ############ Text Probabilities for O/U
 c.setFont('RobotoThin', 10)
 c.setFillColorRGB(1,1,1)  # Set text color to white
-c.setFillColor('white') # change color dynamically to match home_team
+c.setFillColor(primary_text) # change color dynamically to match home_team
 
 
 # Example labels for the predictions
@@ -483,6 +502,6 @@ c.save()
 print(predictions_output)
 print('Success')
 
-
+# Color palette from: https://brandguides.brandfolder.com/beautiful-dashboards/themes#starry-night
 # To run python montecarlo/post_game_viz.py 'url'
 # Sample: python montecarlo/post_game_viz.py 'https://understat.com/match/26733'
