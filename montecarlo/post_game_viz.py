@@ -281,6 +281,81 @@ plt.show()
 
 # ------------- Montecarlo Bars ---------------------
 
+# H2H
+# Extract probabilities
+labels = list(predictions_output.keys())[:2]
+probs = list(predictions_output.values())[:2]
+
+# Colors matching reference
+colors = ['#1f77b4', '#d3d3d3', '#ffcc00', 'black', 'blue']  # Blue, Gray, Yellow -> CHANGE COLOR PALETTE
+
+# Create horizontal bar chart
+fig, ax = plt.subplots(figsize=(5, 0.5))  # Compact size for embedding
+
+# Horizontal bars
+left_pos = 0
+for idx, prob in enumerate(probs):
+    ax.barh(0, prob, left=left_pos, color=colors[idx])
+    left_pos += prob
+
+# Adjust aesthetics
+ax.axis('off')  # Hide axes
+ax.set_xlim(0, 1)  # Probabilities add up to 1
+plt.tight_layout()
+
+# Let's add the text in the PDF Canvas straight
+# Add probability text underneath the bar chart
+# prob_text = "\n".join([f"{label} (%): {prob:.0%}" for label, prob in predictions_output.items()])
+# fig.text(0.5, -0.2, prob_text, ha='center', va='center', fontsize=5)  # Adjust position as needed
+
+# Display the chart
+
+plt.tight_layout()
+# plt.savefig('tuvieja.png')
+plt.show()
+
+# O/U
+# Extract probabilities
+labels = list(predictions_output.keys())[3:]
+probs = list(predictions_output.values())[3:]
+
+# Colors matching reference
+colors = ['#1f77b4', '#d3d3d3', '#ffcc00', 'black', 'blue']  # Blue, Gray, Yellow -> CHANGE COLOR PALETTE
+
+# Create horizontal bar chart
+fig, ax = plt.subplots(figsize=(5, 0.5))  # Compact size for embedding
+
+# Horizontal bars
+left_pos = 0
+for idx, prob in enumerate(probs):
+    ax.barh(0, prob, left=left_pos, color=colors[idx])
+    left_pos += prob
+
+# Adjust aesthetics
+ax.axis('off')  # Hide axes
+ax.set_xlim(0, 1)  # Probabilities add up to 1
+plt.tight_layout()
+
+# Let's add the text in the PDF Canvas straight
+# Add probability text underneath the bar chart
+# prob_text = "\n".join([f"{label} (%): {prob:.0%}" for label, prob in predictions_output.items()])
+# fig.text(0.5, -0.2, prob_text, ha='center', va='center', fontsize=5)  # Adjust position as needed
+
+# Display the chart
+
+plt.tight_layout()
+# plt.savefig('tuvieja.png')
+plt.show()
+
+
+# ------------- CANVAS SECTION ---------------------
+# See Euro Report Canvas section
+# Save previous figures in montecarlo/images/name.png
+# Bring figures into the canvas, change colors, add logos, etc.
+# save the report dynamically according to name in montecarlo/reports/home_team_away_team.pdf
+
+print(predictions_output)
+print('Success')
 
 
 # To run python montecarlo/post_game_viz.py 'url'
