@@ -284,8 +284,8 @@ plt.savefig('montecarlo/Figures/xGFlowchart.png')
 
 # H2H
 # Extract probabilities
-labels = list(predictions_output.keys())[:2]
-probs = list(predictions_output.values())[:2]
+labels = list(predictions_output.keys())[:3]
+probs = list(predictions_output.values())[:3]
 
 # Colors matching reference
 colors = ['#1f77b4', '#d3d3d3', '#ffcc00', 'black', 'blue']  # Blue, Gray, Yellow -> CHANGE COLOR PALETTE
@@ -393,7 +393,7 @@ c.setFillColorRGB(0.10588235, 0.11764706, 0.13333333)
 c.rect(0, 0, 780, 900, fill=True)
 
 # xG Flowchart- Sample of Images Import
-c.drawImage(f'montecarlo/Figures/xGFlowchart.png', 50, 50) #, width=270, height=220) - Avoid fixing sizes at it messes up image quality
+c.drawImage(f'montecarlo/Figures/xGFlowchart.png', 50, 30) #, width=270, height=220) - Avoid fixing sizes at it messes up image quality
 
 # Montecarlo Graphs
 c.drawImage(f'montecarlo/Figures/H2HMontecarlo.png', 50, 450)
@@ -437,7 +437,44 @@ c.drawString(50, 520, title)
 
 
 ############ Text - Probabilities for H2H
+c.setFont('RobotoThin', 10)
+c.setFillColorRGB(1,1,1)  # Set text color to white
+c.setFillColor('white') # change color dynamically to match home_team
+
+
+# Example labels for the predictions
+labels = [f"{home_team} wins:", "Draw:", f"{away_team} wins:"]
+predictions = list(predictions_output.values())[:3]
+formatted_predictions = [f"{label} {value*100:.2f}%" for label, value in zip(labels, predictions)]
+
+# Set initial y-coordinate for text and step for line spacing
+x, y = 50, 420
+line_spacing = 12  # Adjust line spacing as needed
+
+# Draw each formatted value on a new line
+for prediction in formatted_predictions:
+    c.drawString(x, y, prediction)
+    y -= line_spacing  # Move down for the next line
+
 ############ Text Probabilities for O/U
+c.setFont('RobotoThin', 10)
+c.setFillColorRGB(1,1,1)  # Set text color to white
+c.setFillColor('white') # change color dynamically to match home_team
+
+
+# Example labels for the predictions
+labels = [f"Over 2.5 Goals: ", "Under 2.5 goals: "]
+predictions = list(predictions_output.values())[3:]
+formatted_predictions = [f"{label} {value*100:.2f}%" for label, value in zip(labels, predictions)]
+
+# Set initial y-coordinate for text and step for line spacing
+x, y = 450, 420
+line_spacing = 12  # Adjust line spacing as needed
+
+# Draw each formatted value on a new line
+for prediction in formatted_predictions:
+    c.drawString(x, y, prediction)
+    y -= line_spacing  # Move down for the next line
 
 # Save and close the PDF file
 c.save()
