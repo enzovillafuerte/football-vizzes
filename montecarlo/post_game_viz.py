@@ -426,6 +426,16 @@ title = f"{home_ov_data} - {away_ov_data}"
 c.drawString(280, 470, title)
 
 ############ Subtitle - Score
+home_score_data = len(df[(df['team']==home_team) & (df['result'] == 'Goal')])
+away_score_data = len(df[(df['team']==away_team) & (df['result'] == 'Goal')])
+
+c.setFont('RobotoThin', 30)
+c.setFillColorRGB(1,1,1)  # Set text color to white
+c.setFillColor('white') # change color dynamically to match home_team
+title = f"{home_score_data} - {away_score_data}"
+c.drawString(50, 520, title)
+
+
 ############ Text - Probabilities for H2H
 ############ Text Probabilities for O/U
 
