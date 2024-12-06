@@ -257,27 +257,28 @@ df = df.sort_values(by=['team', 'minute'])
 df['cumulative_xG'] = df.groupby('team')['xG'].cumsum()
 
 # Plotting xG flowchart
-plt.figure(figsize=(12, 6))
+plt.figure(figsize=(6, 3.5))
 for team, group in df.groupby('team'):
     plt.plot(group['minute'], group['cumulative_xG'], label=team, marker='x')
 
 # Overlay markers for goals
 goal_shots = df[df['result'] == 'Goal']
-plt.scatter(goal_shots['minute'], goal_shots['cumulative_xG'], color='red', label='Goal', zorder=5, edgecolor='black', s=100)
+plt.scatter(goal_shots['minute'], goal_shots['cumulative_xG'], color='red', label='Goal', zorder=5, edgecolor='black', s=50)
 
 # Annotate with player names for goals
 for _, row in goal_shots.iterrows():
-    plt.text(row['minute'] - 8.5, row['cumulative_xG'], row['player'], fontsize=8, color='black', va='bottom', ha='left')
+    plt.text(row['minute'] - 18.5, row['cumulative_xG'], row['player'], fontsize=8, color='black', va='bottom', ha='left')
 
 # Adding titles and labels
-plt.title(f'{home_team} vs {away_team} xG Flowchart', fontsize=16)
-plt.xlabel('Minute', fontsize=12)
-plt.ylabel('Cumulative xG', fontsize=12)
-plt.legend(title='Team')
+plt.title(f'{home_team} vs {away_team} xG Flowchart', fontsize=8)
+plt.xlabel('Minute', fontsize=6)
+plt.ylabel('Cumulative xG', fontsize=6)
+plt.legend(fontsize=6)
 plt.grid(True, linestyle='--', alpha=0.6)
 
 plt.tight_layout()
-plt.show()
+#plt.show()
+plt.savefig('montecarlo/Figures/xGFlowchart.png')
 
 # ------------- Montecarlo Bars ---------------------
 
@@ -290,7 +291,7 @@ probs = list(predictions_output.values())[:2]
 colors = ['#1f77b4', '#d3d3d3', '#ffcc00', 'black', 'blue']  # Blue, Gray, Yellow -> CHANGE COLOR PALETTE
 
 # Create horizontal bar chart
-fig, ax = plt.subplots(figsize=(5, 0.5))  # Compact size for embedding
+fig, ax = plt.subplots(figsize=(2, 0.5))  # Compact size for embedding
 
 # Horizontal bars
 left_pos = 0
@@ -311,8 +312,8 @@ plt.tight_layout()
 # Display the chart
 
 plt.tight_layout()
-# plt.savefig('tuvieja.png')
-plt.show()
+plt.savefig('montecarlo/Figures/H2HMontecarlo.png')
+#plt.show()
 
 # O/U
 # Extract probabilities
@@ -323,7 +324,7 @@ probs = list(predictions_output.values())[3:]
 colors = ['#1f77b4', '#d3d3d3', '#ffcc00', 'black', 'blue']  # Blue, Gray, Yellow -> CHANGE COLOR PALETTE
 
 # Create horizontal bar chart
-fig, ax = plt.subplots(figsize=(5, 0.5))  # Compact size for embedding
+fig, ax = plt.subplots(figsize=(2, 0.5))  # Compact size for embedding
 
 # Horizontal bars
 left_pos = 0
@@ -344,16 +345,94 @@ plt.tight_layout()
 # Display the chart
 
 plt.tight_layout()
-# plt.savefig('tuvieja.png')
-plt.show()
+plt.savefig('montecarlo/Figures/OUMontecarlo.png')
+#plt.show()
 
 
 # ------------- CANVAS SECTION ---------------------
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from highlight_text import fig_text
+from PIL import Image
+import urllib
+from mplsoccer import Radar, FontManager, grid
+import numpy as np
+import matplotlib.patheffects as path_effects
+from highlight_text import ax_text, fig_text
+from pathlib import Path
+from urllib.request import urlopen
+from io import BytesIO
+import requests
+import os
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from PIL import Image
+import pandas as pd
+import urllib
+
+
 # See Euro Report Canvas section
 # Save previous figures in montecarlo/images/name.png
 # Bring figures into the canvas, change colors, add logos, etc.
 # save the report dynamically according to name in montecarlo/reports/home_team_away_team.pdf
 
+# Prefixing the sizes of the canvas
+width, height = 700, 600
+
+# Creating the canvas in the appropiate directory
+c = canvas.Canvas(f'montecarlo/Reports/{home_team} vs {away_team}.pdf', pagesize=(width, height))
+
+# Setting up background color -- change when decide color palette
+c.setFillColorRGB(0.10588235, 0.11764706, 0.13333333)  
+c.rect(0, 0, 780, 900, fill=True)
+
+# xG Flowchart- Sample of Images Import
+c.drawImage(f'montecarlo/Figures/xGFlowchart.png', 50, 50) #, width=270, height=220) - Avoid fixing sizes at it messes up image quality
+
+# Montecarlo Graphs
+c.drawImage(f'montecarlo/Figures/H2HMontecarlo.png', 50, 450)
+c.drawImage(f'montecarlo/Figures/OUMontecarlo.png', 450, 450)
+
+# Text
+URL4 = 'https://raw.githubusercontent.com/googlefonts/roboto/main/src/hinted/Roboto-Thin.ttf'
+font_data = BytesIO(urlopen(URL4).read())
+pdfmetrics.registerFont(TTFont('RobotoThin', font_data))
+
+############ Title
+c.setFont('RobotoThin', 30)
+c.setFillColorRGB(1,1,1)  # Set text color to white
+c.setFillColor('white') # change color dynamically to match home_team
+title = f"{home_team} vs {away_team}"
+c.drawString(50, 550, title)
+
+############ Subtitle - xG
+# Filtering to sum the xG Data per team
+home_ov_data = df[df['team']==home_team]
+home_ov_data = round(home_ov_data['xG'].sum(),2)
+away_ov_data = df[df['team']==away_team]
+away_ov_data = round(away_ov_data['xG'].sum(),2)
+
+
+c.setFont('RobotoThin', 30)
+c.setFillColorRGB(1,1,1)  # Set text color to white
+c.setFillColor('white') # change color dynamically to match home_team
+title = f"{home_ov_data} - {away_ov_data}"
+c.drawString(280, 470, title)
+
+############ Subtitle - Score
+############ Text - Probabilities for H2H
+############ Text Probabilities for O/U
+
+# Save and close the PDF file
+c.save()
+
+# Running section
 print(predictions_output)
 print('Success')
 
