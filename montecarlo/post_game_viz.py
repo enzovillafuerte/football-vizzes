@@ -238,6 +238,7 @@ predictions_output = montecarlo_simulation(df, home_team, away_team)
 ## Section 3 - Viz Generation | Statsbomb as Reference
 ############################################################################################
 # color palette:
+main_background = '#E9E7E1'
 widget_background = '#F2F1ED'
 primary_text = '#223459'
 home_color = '#6A5AAA'
@@ -310,7 +311,7 @@ labels = list(predictions_output.keys())[:3]
 probs = list(predictions_output.values())[:3]
 
 # Colors matching reference
-colors = ['#1f77b4', '#d3d3d3', '#ffcc00', 'black', 'blue']  # Blue, Gray, Yellow -> CHANGE COLOR PALETTE
+colors = [home_color, '#d3d3d3', away_color, 'black', 'blue']  # Blue, Gray, Yellow -> CHANGE COLOR PALETTE
 
 # Create horizontal bar chart
 fig, ax = plt.subplots(figsize=(2, 0.5))  # Compact size for embedding
@@ -343,7 +344,7 @@ labels = list(predictions_output.keys())[3:]
 probs = list(predictions_output.values())[3:]
 
 # Colors matching reference
-colors = ['#1f77b4', '#d3d3d3', '#ffcc00', 'black', 'blue']  # Blue, Gray, Yellow -> CHANGE COLOR PALETTE
+colors = [home_color, '#d3d3d3', away_color, 'black', 'blue']  # Blue, Gray, Yellow -> CHANGE COLOR PALETTE
 
 # Create horizontal bar chart
 fig, ax = plt.subplots(figsize=(2, 0.5))  # Compact size for embedding
@@ -370,6 +371,32 @@ plt.tight_layout()
 plt.savefig('montecarlo/Figures/OUMontecarlo.png', facecolor=widget_background)
 #plt.show()
 
+# ------ Logos plot -----
+
+# Load the home and away team logos
+home_logo = mpimg.imread(f'team_logos/{home_team}.png')
+away_logo = mpimg.imread(f'team_logos/{away_team}.png')
+
+# ------ Home Team Logo Plot -----
+# Create a new figure for the home team logo
+fig_home, ax_home = plt.subplots(figsize=(4, 4), facecolor=main_background)  # Adjust the size of the plot as needed
+ax_home.imshow(home_logo, aspect='auto')
+ax_home.set_facecolor(main_background)
+ax_home.axis('off')  # Hide the axis
+
+# Save the home team logo plot as a PNG file
+fig_home.savefig('montecarlo/Figures/home_team_logo.png', bbox_inches='tight', transparent=True)
+plt.close(fig_home)  # Close the figure to release memory
+
+# ------ Away Team Logo Plot -----
+# Create a new figure for the away team logo
+fig_away, ax_away = plt.subplots(figsize=(4, 4), facecolor=main_background)  # Adjust the size of the plot as needed
+ax_away.imshow(away_logo, aspect='auto')
+ax_away.axis('off')  # Hide the axis
+
+# Save the away team logo plot as a PNG file
+fig_away.savefig('montecarlo/Figures/away_team_logo.png', bbox_inches='tight', transparent=True)
+plt.close(fig_away)  # Close the figure to release memory
 
 # ------------- CANVAS SECTION ---------------------
 import pandas as pd
@@ -421,6 +448,10 @@ c.drawImage(f'montecarlo/Figures/xGFlowchart.png', 50, 30) #, width=270, height=
 # Montecarlo Graphs
 c.drawImage(f'montecarlo/Figures/H2HMontecarlo.png', 50, 450)
 c.drawImage(f'montecarlo/Figures/OUMontecarlo.png', 450, 450)
+
+# Adding Logos Programatically
+c.drawImage(f'montecarlo/Figures/home_team_logo.png', 500, 500, width = 90, height=90)
+c.drawImage(f'montecarlo/Figures/away_team_logo.png', 585, 500, width = 90, height=90)
 
 # Text
 URL4 = 'https://raw.githubusercontent.com/googlefonts/roboto/main/src/hinted/Roboto-Thin.ttf'
@@ -560,6 +591,9 @@ line_spacing = 12  # Adjust line spacing as needed
 for prediction in formatted_predictions:
     c.drawString(x, y, prediction)
     y -= line_spacing  # Move down for the next line
+
+
+
 
 # Save and close the PDF file
 c.save()
