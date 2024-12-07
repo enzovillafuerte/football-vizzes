@@ -281,7 +281,7 @@ ax.scatter(goal_shots['minute'], goal_shots['cumulative_xG'], color=goal_tickmar
 
 # Annotate with player names for goals
 for _, row in goal_shots.iterrows():
-    ax.text(row['minute'] - 18.5, row['cumulative_xG'], row['player'], fontsize=8, color='black', va='bottom', ha='left')
+    ax.text(row['minute'] - 18.5, row['cumulative_xG'], row['player'], fontsize=7, color='black', va='bottom', ha='left')
 
 # Adding titles and labels
 ax.set_title(f'{home_team} vs {away_team} xG Flowchart', fontsize=8)
@@ -293,6 +293,9 @@ ax.grid(True, linestyle='--', alpha=0.6)
 # Smaller tick labels
 ax.tick_params(axis='both', which='major', labelsize=5)  # Adjust tick label size
 ax.set_xticks(range(0, 105, 5))  # Set ticks from 0 to 100 with a step of 5
+
+# Interpolation of datasets for fillbetween()
+# Do it at the end!
 
 plt.tight_layout()
 # Save figure with blue outer background and light gray inner axis background
@@ -394,6 +397,7 @@ from reportlab.pdfbase import pdfmetrics
 from PIL import Image
 import pandas as pd
 import urllib
+from reportlab.lib.colors import HexColor 
 
 
 # See Euro Report Canvas section
@@ -437,12 +441,19 @@ home_ov_data = round(home_ov_data['xG'].sum(),2)
 away_ov_data = df[df['team']==away_team]
 away_ov_data = round(away_ov_data['xG'].sum(),2)
 
+c.setFont('RobotoThin', 15)
+c.setFillColorRGB(1,1,1)  # Set text color to white
+c.setFillColor(primary_text) # change color dynamically to match home_team
+title = f"Expected Goals (xG)"
+c.drawString(285, 500, title)
 
 c.setFont('RobotoThin', 30)
 c.setFillColorRGB(1,1,1)  # Set text color to white
 c.setFillColor(primary_text) # change color dynamically to match home_team
 title = f"{home_ov_data} - {away_ov_data}"
 c.drawString(280, 470, title)
+
+
 
 ############ Subtitle - Score
 home_score_data = len(df[(df['team']==home_team) & (df['result'] == 'Goal')])
@@ -454,6 +465,61 @@ c.setFillColor(primary_text) # change color dynamically to match home_team
 title = f"{home_score_data} - {away_score_data}"
 c.drawString(50, 520, title)
 
+# xG Over/Underperformance
+h_xg_performance = home_score_data - home_ov_data
+a_xg_performance = away_score_data - away_ov_data
+
+# Plotting the over and underperfomance
+# Define colors for positive and negative values
+positive_color = HexColor("#00FF00")  # Green
+negative_color = HexColor("#FF0000")  # Red
+
+# Define symbols for upward and downward arrows
+upward_arrow = u'\u2191'  # Unicode for upward arrow
+downward_arrow = u'\u2193'  # Unicode for downward arrow
+
+# Set font and size
+c.setFont('RobotoThin', 20)
+
+# Determine and set the color for h_xg_performance and add the arrow
+if h_xg_performance >= 0:
+    c.setFillColor(positive_color)
+    h_arrow = upward_arrow  # Green upward arrow
+else:
+    c.setFillColor(negative_color)
+    h_arrow = downward_arrow  # Red downward arrow
+
+# Draw h_xg_performance with the arrow
+h_title = f"{round(h_xg_performance, 2)} {h_arrow}"
+c.drawString(280, 435, h_title)
+
+# Determine and set the color for a_xg_performance and add the arrow
+if a_xg_performance >= 0:
+    c.setFillColor(positive_color)
+    a_arrow = upward_arrow  # Green upward arrow
+else:
+    c.setFillColor(negative_color)
+    a_arrow = downward_arrow  # Red downward arrow
+
+# Draw a_xg_performance with the arrow
+a_title = f"{round(a_xg_performance, 2)} {a_arrow}"
+text_width = c.stringWidth(h_title, 'RobotoThin', 20)  # Calculate width of the first part
+c.drawString(360, 435, a_title)
+
+### Finalization of xG performance section
+
+# Simulation Section Subtitles
+c.setFont('RobotoThin', 12)
+c.setFillColorRGB(1,1,1)  # Set text color to white
+c.setFillColor(primary_text) # change color dynamically to match home_team
+title = f"H2H Simulation"
+c.drawString(50, 435, title)
+
+c.setFont('RobotoThin', 12)
+c.setFillColorRGB(1,1,1)  # Set text color to white
+c.setFillColor(primary_text) # change color dynamically to match home_team
+title = f"O/U Simulation"
+c.drawString(450, 435, title)
 
 ############ Text - Probabilities for H2H
 c.setFont('RobotoThin', 10)
@@ -502,6 +568,7 @@ c.save()
 print(predictions_output)
 print('Success')
 
+# Dynamic string: c.drawString(50 + text_width, 435, a_title)
 # Color palette from: https://brandguides.brandfolder.com/beautiful-dashboards/themes#starry-night
 # To run python montecarlo/post_game_viz.py 'url'
 # Sample: python montecarlo/post_game_viz.py 'https://understat.com/match/26733'
