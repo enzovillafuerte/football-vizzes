@@ -238,11 +238,11 @@ predictions_output = montecarlo_simulation(df, home_team, away_team)
 ## Section 3 - Viz Generation | Statsbomb as Reference
 ############################################################################################
 # color palette:
-main_background = '#E9E7E1'
-widget_background = '#F2F1ED'
+main_background = '#ffffff'
+widget_background = '#ffffff'
 primary_text = '#223459'
-home_color = '#6A5AAA'
-away_color = '#FFB142'
+home_color = '#0F3B99'
+away_color = '#5886E9'
 goal_tickmark_color = '#B45082'
 
 # ------------- xG Flowchart ---------------------
@@ -264,7 +264,7 @@ df = df.sort_values(by=['team', 'minute'])
 df['cumulative_xG'] = df.groupby('team')['xG'].cumsum()
 
 # Plotting xG flowchart
-fig, ax = plt.subplots(figsize=(6, 3.5))  # Create figure and axis
+fig, ax = plt.subplots(figsize=(6.5, 3.5))  # Create figure and axis
 
 # Set background of the axis to light gray
 ax.set_facecolor(widget_background)
@@ -438,15 +438,15 @@ width, height = 700, 600
 # Creating the canvas in the appropiate directory
 c = canvas.Canvas(f'montecarlo/Reports/{home_team} vs {away_team}.pdf', pagesize=(width, height))
 
-# Setting up background color -- change when decide color palette
-c.setFillColorRGB(0.913725, 0.905882, 0.882353)  # Color for #E9E7E1
-c.rect(0, 0, 780, 900, fill=True)
+# Setting up background color for white (#ffffff)
+c.setFillColorRGB(1, 1, 1)  # RGB values for white
+c.rect(0, 0, 780, 900, fill=True)  # Draw a filled rectangle with the white background
 
 # xG Flowchart- Sample of Images Import
-c.drawImage(f'montecarlo/Figures/xGFlowchart.png', 50, 30) #, width=270, height=220) - Avoid fixing sizes at it messes up image quality
+c.drawImage(f'montecarlo/Figures/xGFlowchart.png', 10, 30) #, width=270, height=220) - Avoid fixing sizes at it messes up image quality
 
 # Montecarlo Graphs
-c.drawImage(f'montecarlo/Figures/H2HMontecarlo.png', 50, 450)
+c.drawImage(f'montecarlo/Figures/H2HMontecarlo.png', 35, 450)
 c.drawImage(f'montecarlo/Figures/OUMontecarlo.png', 450, 450)
 
 # Adding Logos Programatically
@@ -544,13 +544,13 @@ c.setFont('RobotoThin', 12)
 c.setFillColorRGB(1,1,1)  # Set text color to white
 c.setFillColor(primary_text) # change color dynamically to match home_team
 title = f"H2H Simulation"
-c.drawString(50, 435, title)
+c.drawString(55, 435, title)
 
 c.setFont('RobotoThin', 12)
 c.setFillColorRGB(1,1,1)  # Set text color to white
 c.setFillColor(primary_text) # change color dynamically to match home_team
 title = f"O/U Simulation"
-c.drawString(450, 435, title)
+c.drawString(465, 435, title)
 
 ############ Text - Probabilities for H2H
 c.setFont('RobotoThin', 10)
@@ -564,7 +564,7 @@ predictions = list(predictions_output.values())[:3]
 formatted_predictions = [f"{label} {value*100:.2f}%" for label, value in zip(labels, predictions)]
 
 # Set initial y-coordinate for text and step for line spacing
-x, y = 50, 420
+x, y = 55, 420
 line_spacing = 12  # Adjust line spacing as needed
 
 # Draw each formatted value on a new line
@@ -584,7 +584,7 @@ predictions = list(predictions_output.values())[3:]
 formatted_predictions = [f"{label} {value*100:.2f}%" for label, value in zip(labels, predictions)]
 
 # Set initial y-coordinate for text and step for line spacing
-x, y = 450, 420
+x, y = 466, 420
 line_spacing = 12  # Adjust line spacing as needed
 
 # Draw each formatted value on a new line
@@ -605,4 +605,4 @@ print('Success')
 # Dynamic string: c.drawString(50 + text_width, 435, a_title)
 # Color palette from: https://brandguides.brandfolder.com/beautiful-dashboards/themes#starry-night
 # To run python montecarlo/post_game_viz.py 'url'
-# Sample: python montecarlo/post_game_viz.py 'https://understat.com/match/26733'
+# python montecarlo/post_game_viz.py 'https://understat.com/match/26733'
