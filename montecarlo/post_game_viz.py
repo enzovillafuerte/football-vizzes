@@ -45,7 +45,7 @@ if len(sys.argv) <2:
 # Storing the url     
 url = sys.argv[1]
 
-"""
+
 # Scraping from Understat
 # Using requests to get the webpage and let Beautiful soup to parse the page
 res = requests.get(url)  
@@ -130,8 +130,8 @@ df = pd.DataFrame([x,y,xG,result,team, minute, player],index=col_names)
 df = df.T      
 
 # Save the dataset to use it as baseline for the Montecarlo so we don't send too many requests to the website while testing
-#df.to_csv('montecarlo/baseline_df.csv', index=False)
-"""
+df.to_csv('montecarlo/baseline_df.csv', index=False)
+
 
 ############################################################################################
 ## Section 2 - Montecarlo Simulations - work with the sample: Arsenal vs Man Utd
@@ -141,8 +141,8 @@ df = df.T
 df = pd.read_csv('montecarlo/baseline_df.csv')
 
 # sample team naming to use as baseline
-home_team = 'Arsenal'
-away_team = 'Manchester United'
+#home_team = 'Arsenal'
+#away_team = 'Manchester United'
 # """
 
 # Run the montecarlo simulations
@@ -606,3 +606,4 @@ print('Success')
 # Color palette from: https://brandguides.brandfolder.com/beautiful-dashboards/themes#starry-night
 # To run python montecarlo/post_game_viz.py 'url'
 # python montecarlo/post_game_viz.py 'https://understat.com/match/26733'
+# python montecarlo/post_game_viz.py 'https://understat.com/match/27851'
