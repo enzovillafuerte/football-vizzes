@@ -593,7 +593,12 @@ for prediction in formatted_predictions:
     y -= line_spacing  # Move down for the next line
 
 
-
+# Signature
+c.setFont('RobotoThin', 16)
+c.setFillColorRGB(1,1,1)  # Set text color to white
+c.setFillColor(primary_text) # change color dynamically to match home_team
+title = f"Enzo Villafuerte"
+c.drawString(300, 15, title)
 
 # Save and close the PDF file
 c.save()
@@ -602,8 +607,16 @@ c.save()
 print(predictions_output)
 print('Success')
 
+
+
+"""
+Further improvements:
+- Instead of saving to a csv, find the way to avoid that. I believe it is just a data type error
+- Add the teams with links to their logos in the logo script
+"""
 # Dynamic string: c.drawString(50 + text_width, 435, a_title)
 # Color palette from: https://brandguides.brandfolder.com/beautiful-dashboards/themes#starry-night
 # To run python montecarlo/post_game_viz.py 'url'
 # python montecarlo/post_game_viz.py 'https://understat.com/match/26733'
 # python montecarlo/post_game_viz.py 'https://understat.com/match/27851'
+# python montecarlo/post_game_viz.py 'https://understat.com/match/26744'
