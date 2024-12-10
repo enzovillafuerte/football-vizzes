@@ -130,6 +130,8 @@ df = pd.DataFrame([x,y,xG,result,team, minute, player],index=col_names)
 df = df.T      
 
 # Save the dataset to use it as baseline for the Montecarlo so we don't send too many requests to the website while testing
+# Will need to update this section. Not a big deal, probably just a dtypes issue
+# do it later
 df.to_csv('montecarlo/baseline_df.csv', index=False)
 
 
@@ -619,4 +621,4 @@ Further improvements:
 # To run python montecarlo/post_game_viz.py 'url'
 # python montecarlo/post_game_viz.py 'https://understat.com/match/26733'
 # python montecarlo/post_game_viz.py 'https://understat.com/match/27851'
-# python montecarlo/post_game_viz.py 'https://understat.com/match/26744'
+# python montecarlo/post_game_viz.py 'https://understat.com/match/26726'
