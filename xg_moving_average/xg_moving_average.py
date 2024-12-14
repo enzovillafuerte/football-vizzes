@@ -82,6 +82,29 @@ df['team_xGA'] = df.apply(
 # Further manipulation before the time series
 
 
+# xG concedede and xG created
+#Y_for = df[df["variable"] == "xG_for"].reset_index(drop=True)["value"]
+#Y_ag = df[df["variable"] == "xG_ag"].reset_index(drop=True)["value"]
+#X = pd.Series(range(len(Y_for)))
+Y_for = df['team_xG']
+Y_ag = df['team_xGA']
+X = pd.Series(range(len(Y_for)))
+
+# Compute the rolling average (min_periods is used for the partial average)
+# 3 game rolling average
+
+Y_for = Y_for.rolling(window=3, min_periods = 0).mean()
+Y_ag = Y_ag.rolling(window=3, min_periods = 0).mean()
+
+# Plot the data
+fig = plt.figure(figsize=(4, 2.5), dpi = 200)
+ax = plt.subplot(111)
+
+ax.plot(X, Y_for, label = "xG created")
+ax.plot(X, Y_ag, label = "xG conceded")
+
+ax.legend()
+plt.show()
 
 print(df)
 print('Success')
