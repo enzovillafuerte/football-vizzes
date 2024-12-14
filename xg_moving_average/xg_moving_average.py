@@ -66,12 +66,29 @@ df = pd.json_normalize(
 ################### VIZ SECTION #############################
 ##################################################################
 
+# Used the following repo as guide: https://github.com/enzo23isco/xGRolling/blob/main/xG%20Rolling%20Plot%20-%20FCB.ipynb
 
+df = df[df['isResult'] == True] # keeping only matches that already happened
+
+# Modify the dataframe to get two new columns, team_xG and team_xGA
+df['team_xG'] = df.apply(
+    lambda row: row['xG_h'] if row['h_title'] == team else row['xG_a'], axis=1
+)
+
+df['team_xGA'] = df.apply(
+    lambda row: row['xG_a'] if row['h_title'] == team else row['xG_h'], axis=1
+)
+
+# Further manipulation before the time series
 
 
 
 print(df)
 print('Success')
 
+# df columns -> Index(['id', 'isResult', 'side', 'datetime', 'result', 'h_id', 'h_title',
+       #'h_short_title', 'a_id', 'a_title', 'a_short_title', 'goals_h',
+       #'goals_a', 'xG_h', 'xG_a', 'forecast_w', 'forecast_d', 'forecast_l'],
+      #dtype='object')
 # To run:
 # python xg_moving_average/xg_moving_average.py
