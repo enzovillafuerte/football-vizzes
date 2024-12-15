@@ -29,41 +29,74 @@ url = sys.argv[1]
 
 base_url =  'https://understat.com/team/' # base url
 team = 'Barcelona' # coming from input
-year = '2024' # Year of the analysis, iterate over a loop of list if needed
-
+#year = '2024' # Year of the analysis, iterate over a loop of list if needed
+#years_list = ['2020', '2021', '2022', '2023', '2024']
+years_list = ['2022', '2023', '2024']
 # Consolidation of the url 
-url = f'{base_url}{team}/{year}'
+#url = f'{base_url}{team}/{year}'
 
 
+# Adding error handling in case the specific team wasn't in first division in the given year
+def season_scraper(url):
+
+    try:
+        # Begin scraping
+        res = requests.get(url)
+        soup = BeautifulSoup(res.content, 'lxml')
+        scripts = soup.find_all('script')
+
+        # We are interested in the vardatesData section as the information is stored there
+        # Index = [1]
+        strings = scripts[1].string
+
+        # strip unnecessary symbols and get only JSON data 
+        ind_start = strings.index("('")+2 
+        ind_end = strings.index("')") 
+        json_data = strings[ind_start:ind_end] 
+        json_data = json_data.encode('utf8').decode('unicode_escape')
+
+        # convert string to json format
+        data = json.loads(json_data)
+
+        # Create a dataframe
+        # Normalize the data and extract nested dictionaries into separate columns
+        df = pd.json_normalize(
+            data,
+            sep='_',
+            meta=['id', 'isResult', 'side', 'datetime', 'result'],
+            record_prefix=None
+        )
+
+        return df
+
+    except Exception as e:
+        print(f"Failed to scrape data for URL {url}: {e}")
+        return pd.DataFrame()
 
 
-# Begin scraping
-res = requests.get(url)
-soup = BeautifulSoup(res.content, 'lxml')
-scripts = soup.find_all('script')
+# Consolidate data for all seasons defined
+all_data = []
 
-# We are interested in the vardatesData section as the information is stored there
-# Index = [1]
-strings = scripts[1].string
+for year in years_list:
+    url = f'{base_url}{team}/{year}' # consolidation of the url
+    print(f'Scraping data for {team} in {year}')
+    df = season_scraper(url) # Calling the function to scrape the data
+    if not df.empty:
+        df['year'] = year  # adding the year column. Potential redundnacy with datetime column
+        all_data.append(df)
 
-# strip unnecessary symbols and get only JSON data 
-ind_start = strings.index("('")+2 
-ind_end = strings.index("')") 
-json_data = strings[ind_start:ind_end] 
-json_data = json_data.encode('utf8').decode('unicode_escape')
+# Combine all DataFrames into one
+if all_data:
+    consolidated_df = pd.concat(all_data, ignore_index=True)
+    print("Data successfully consolidated!")
+else:
+    consolidated_df = pd.DataFrame()  # Handle the case where no data was scraped
+    print("No data was scraped.")
 
-# convert string to json format
-data = json.loads(json_data)
 
-# Create a dataframe
-# Normalize the data and extract nested dictionaries into separate columns
-df = pd.json_normalize(
-    data,
-    sep='_',
-    meta=['id', 'isResult', 'side', 'datetime', 'result'],
-    record_prefix=None
-)
-
+# Run the function
+# Rename the dataset back to df for viz development
+df = consolidated_df
 
 ##################################################################
 ################### VIZ SECTION #############################
