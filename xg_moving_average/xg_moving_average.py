@@ -135,7 +135,7 @@ Y_ag = Y_ag.rolling(window=3, min_periods = 0).mean()
 #####
 # Plot the data
 fig = plt.figure(figsize=(4.5, 2.5), dpi = 200, facecolor = "#EFE9E6")
-ax = plt.subplot(111, facecolor = "#EFE9E6")
+ax = plt.subplot(111, facecolor = "#EFE9E6") # 111
 
 # Remove top & right spines and change the color.
 ax.spines[["top", "right"]].set_visible(False)
@@ -222,14 +222,14 @@ ax.tick_params(
 )
 
 # Set x-axis major tick positions to only 19 game multiples.
-ax.xaxis.set_major_locator(ticker.MultipleLocator(19))
+ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
 # Set y-axis major tick positions to only 0.5 xG multiples.
 ax.yaxis.set_major_locator(ticker.MultipleLocator(0.5))
 
 # Title and subtitle for the legend
 fig_text(
-    x = 0.12, y = 1.1,
-    s = "FC Barcelona",
+    x=0.12, y=1.1,
+    s = f'{team}',
     color = "black",
     weight = "bold",
     size = 10,
@@ -238,8 +238,8 @@ fig_text(
 )
 
 fig_text(
-    x = 0.12, y = 1.02,
-    s = "Expected goals <created> and <conceded> | 3-match rolling average\nLaLiga seasons 21/22 and 22/23",
+    x=0.12, y=1.02,
+    s = f"Expected goals <created> and <conceded> | 3-match rolling average\nLeague seasons 21/22 and 22/23",
     highlight_textprops = [
         {"color": line_1[0].get_color(), "weight": "bold"},
         {"color": line_2[0].get_color(), "weight": "bold"}
@@ -260,7 +260,7 @@ fig.text(0.95, 0.05, 'Enzo Villafuerte', fontsize=4, color='black', ha='right', 
 
 ####
 
-plt.savefig(f'xg_moving_average/images/{team}_flowchart.png')
+plt.savefig(f'xg_moving_average/images/{team}_flowchart.png', bbox_inches="tight")
 plt.show()
 
 print(df)
