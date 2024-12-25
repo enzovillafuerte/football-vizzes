@@ -29,9 +29,10 @@ url = sys.argv[1]
 
 base_url =  'https://understat.com/team/' # base url
 team = 'Barcelona' # coming from input
+#team='VfB_Stuttgart'
 #year = '2024' # Year of the analysis, iterate over a loop of list if needed
 #years_list = ['2020', '2021', '2022', '2023', '2024']
-years_list = ['2022', '2023', '2024']
+years_list = ['2021', '2022', '2023', '2024']
 # Consolidation of the url 
 #url = f'{base_url}{team}/{year}'
 
@@ -129,8 +130,8 @@ X = pd.Series(range(len(Y_for)))
 # Compute the rolling average (min_periods is used for the partial average)
 # 3 game rolling average
 
-Y_for = Y_for.rolling(window=3, min_periods = 0).mean()
-Y_ag = Y_ag.rolling(window=3, min_periods = 0).mean()
+Y_for = Y_for.rolling(window=6, min_periods = 0).mean()
+Y_ag = Y_ag.rolling(window=6, min_periods = 0).mean()
 
 #####
 # Plot the data
@@ -181,13 +182,13 @@ ax.annotate(
 
 # Add referencing text to el clasico
 # Add text to the plot
-
+"""
 ax.annotate("Real Madrid 0-4 Barcelona", xy=(27, 0), xytext=(27, 4.2), color='black',
             fontsize=4.5, ha='center', va='bottom', 
             #bbox=dict(facecolor='none', edgecolor='grey', boxstyle='round'),
             verticalalignment='top')
 
-
+"""
 
 # Fill between
 ax.fill_between(
@@ -221,8 +222,8 @@ ax.tick_params(
     zorder = 3
 )
 
-# Set x-axis major tick positions to only 19 game multiples.
-ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
+# Set x-axis major tick positions to only 10 game multiples.
+ax.xaxis.set_major_locator(ticker.MultipleLocator(10))
 # Set y-axis major tick positions to only 0.5 xG multiples.
 ax.yaxis.set_major_locator(ticker.MultipleLocator(0.5))
 
@@ -239,7 +240,7 @@ fig_text(
 
 fig_text(
     x=0.12, y=1.02,
-    s = f"Expected goals <created> and <conceded> | 3-match rolling average\nLeague seasons 21/22 and 22/23",
+    s = f"Expected goals <created> and <conceded> | 3-match rolling average\n",
     highlight_textprops = [
         {"color": line_1[0].get_color(), "weight": "bold"},
         {"color": line_2[0].get_color(), "weight": "bold"}
@@ -270,5 +271,8 @@ print('Success')
        #'h_short_title', 'a_id', 'a_title', 'a_short_title', 'goals_h',
        #'goals_a', 'xG_h', 'xG_a', 'forecast_w', 'forecast_d', 'forecast_l'],
       #dtype='object')
+
+# Still need: Programatically add the separation lines between seasons
+
 # To run:
 # python xg_moving_average/xg_moving_average.py
