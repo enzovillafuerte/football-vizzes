@@ -164,6 +164,41 @@ ax.plot(
     zorder = 2
 )
 
+
+# Automatic annotation of season differences --
+# Adding vertical lines and annotations to separate seasons
+season_boundaries = df.groupby('year').apply(lambda x: x.index[0]).tolist()
+
+# Iterate over the season boundaries and annotate the plot
+for i, boundary in enumerate(season_boundaries):
+    ax.plot(
+        [boundary, boundary],
+        [ax.get_ylim()[0], ax.get_ylim()[1]],
+        ls=":",
+        lw=1.25,
+        color="grey",
+        zorder=2
+    )
+    # Add an annotation for the season
+    ax.annotate(
+        xy=(boundary, ax.get_ylim()[1] * 0.1),
+        xytext=(-10, 10),
+        textcoords="offset points",
+        text=f"{years_list[i]} season",
+        fontweight="bold",
+        size=3,
+        color="grey",
+        ha="right"
+    )
+
+
+
+
+# End of annotation --
+
+
+# Comment out this block optional and specific to some analysis:
+"""
 # Annotation with data coordinates and offset points.
 ax.annotate(
     xy = (12, .55),
@@ -179,7 +214,7 @@ ax.annotate(
         connectionstyle="angle3,angleA=100,angleB=-30"
     ) # Arrow to connect annotation
 )
-
+"""
 # Add referencing text to el clasico
 # Add text to the plot
 """
