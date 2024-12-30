@@ -308,7 +308,7 @@ fig.text(0.87, 0.93, 'Inspiration: @sonofacorner', fontsize=4, color='black', ha
 ####
 
 plt.savefig(f'xg_moving_average/images/{team}_flowchart.png', bbox_inches="tight")
-plt.show()
+#plt.show()
 
 print(df)
 print('Success')
@@ -325,3 +325,4 @@ print('Success')
 # python xg_moving_average/xg_moving_average.py Barcelona
 # python xg_moving_average/xg_moving_average.py Sevilla
 # python xg_moving_average/xg_moving_average.py Arsenal
+# python xg_moving_average/xg_moving_average.py Girona
