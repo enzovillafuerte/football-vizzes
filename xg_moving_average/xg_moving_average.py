@@ -154,18 +154,9 @@ line_1 = ax.plot(X, Y_for, color = "#004D98", zorder = 4)
 line_2 = ax.plot(X, Y_ag, color = "#A50044", zorder = 4)
 
 ax.set_ylim(0)
-# Add a line to mark the division between seasons
-ax.plot(
-    [12,12], # 12th game into the season was Xavi's first game
-    [ax.get_ylim()[0], ax.get_ylim()[1]],
-    ls = ":",
-    lw = 1.25,
-    color = "grey",
-    zorder = 2
-)
 
 
-# Automatic annotation of season differences --
+# Season Annotation in Viz Section
 # Adding vertical lines and annotations to separate seasons
 season_boundaries = df.groupby('year').apply(lambda x: x.index[0]).tolist()
 
@@ -182,23 +173,30 @@ for i, boundary in enumerate(season_boundaries):
     # Add an annotation for the season
     ax.annotate(
         xy=(boundary, ax.get_ylim()[1] * 0.1),
-        xytext=(-10, 10),
+        xytext=(15, 10),
         textcoords="offset points",
-        text=f"{years_list[i]} season",
+        text=f"{years_list[i]}",
         fontweight="bold",
-        size=3,
+        size=4,
         color="grey",
         ha="right"
     )
 
 
 
-
-# End of annotation --
-
-
 # Comment out this block optional and specific to some analysis:
 """
+
+# Add a line to mark the division between seasons
+ax.plot(
+    [12,12], # 12th game into the season was Xavi's first game
+    [ax.get_ylim()[0], ax.get_ylim()[1]],
+    ls = ":",
+    lw = 1.25,
+    color = "grey",
+    zorder = 2
+)
+
 # Annotation with data coordinates and offset points.
 ax.annotate(
     xy = (12, .55),
