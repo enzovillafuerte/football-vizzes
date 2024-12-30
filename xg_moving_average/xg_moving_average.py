@@ -318,8 +318,10 @@ print('Success')
        #'goals_a', 'xG_h', 'xG_a', 'forecast_w', 'forecast_d', 'forecast_l'],
       #dtype='object')
 
-# Still need: Programatically add the separation lines between seasons
+# Still need: Make it into a Streamlit app
 
 # To run:
 # python xg_moving_average/xg_moving_average.py
 # python xg_moving_average/xg_moving_average.py Barcelona
+# python xg_moving_average/xg_moving_average.py Sevilla
+# python xg_moving_average/xg_moving_average.py Arsenal
