@@ -7,6 +7,7 @@ import seaborn as sns
 import json
 import time 
 import matplotlib.ticker as ticker
+import matplotlib.image as mpimg
 from highlight_text import fig_text
 from PIL import Image
 import urllib
@@ -273,7 +274,7 @@ fig_text(
 
 fig_text(
     x=0.12, y=1.02,
-    s = f"Expected goals <created> and <conceded> | 3-match rolling average\n",
+    s = f"Expected goals <created> and <conceded> | 3-match rolling average\nBy Enzo Villafuerte",
     highlight_textprops = [
         {"color": line_1[0].get_color(), "weight": "bold"},
         {"color": line_2[0].get_color(), "weight": "bold"}
@@ -283,14 +284,26 @@ fig_text(
     annotationbbox_kw={"xycoords": "figure fraction"}
 )
 
+
+# Adjust the image programatically - Pull the logo from Figures folder, similar to post_game_viz.py
+
+logo_ax = fig.add_axes([0.75, .99, 0.13, 0.13], zorder=1)
+club_icon = mpimg.imread(f'team_logos/{team}.png')
+logo_ax.imshow(club_icon)
+logo_ax.axis("off")
+
+"""
+UNCOMMENT THE FOLLOWING IF NEED TO PULL LOGO FROM FOTMOB
+
 fotmob_url = "https://images.fotmob.com/image_resources/logo/teamlogo/"
 
 logo_ax = fig.add_axes([0.75, .99, 0.13, 0.13], zorder=1)
 club_icon = Image.open(urllib.request.urlopen(f"{fotmob_url}8634.png"))
 logo_ax.imshow(club_icon)
 logo_ax.axis("off")
+"""
 
-fig.text(0.95, 0.05, 'Enzo Villafuerte', fontsize=4, color='black', ha='right', va='bottom', alpha=0.7)
+fig.text(0.87, 0.93, 'Inspiration: @sonofacorner', fontsize=4, color='black', ha='right', va='bottom', alpha=0.7)
 
 ####
 
