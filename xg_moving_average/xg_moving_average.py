@@ -11,25 +11,25 @@ import matplotlib.image as mpimg
 from highlight_text import fig_text
 from PIL import Image
 import urllib
+import sys
 
 ##################################################################
 ################### SCRAPER SECTION #############################
 ##################################################################
 
-"""
+
 # Storing the url provided by the user
 # Ensuring a url is provided as input/argument
 if len(sys.argv) <2:
-    print("Provide a valid url -> python montecarlo/post_game_viz.py 'url'")
+    print("Provide a valid url -> python xg_moving_average/xg_moving_average.py 'team'")
     sys.exit(1)
 
-# Storing the url     
-url = sys.argv[1]
-"""
+# Storing the team    
+team = sys.argv[1]
 
 
 base_url =  'https://understat.com/team/' # base url
-team = 'Barcelona' # coming from input
+#team = 'Barcelona' # coming from input
 #team='VfB_Stuttgart'
 #year = '2024' # Year of the analysis, iterate over a loop of list if needed
 #years_list = ['2020', '2021', '2022', '2023', '2024']
@@ -322,3 +322,4 @@ print('Success')
 
 # To run:
 # python xg_moving_average/xg_moving_average.py
+# python xg_moving_average/xg_moving_average.py Barcelona
