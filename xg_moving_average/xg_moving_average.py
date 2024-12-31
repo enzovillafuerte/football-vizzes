@@ -274,7 +274,7 @@ fig_text(
 
 fig_text(
     x=0.12, y=1.02,
-    s = f"Expected goals <created> and <conceded> | 3-match rolling average\nBy Enzo Villafuerte",
+    s = f"Expected goals <created> and <conceded> | 6-match rolling average\nBy Enzo Villafuerte",
     highlight_textprops = [
         {"color": line_1[0].get_color(), "weight": "bold"},
         {"color": line_2[0].get_color(), "weight": "bold"}

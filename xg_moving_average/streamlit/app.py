@@ -103,7 +103,7 @@ if selected_team:
 
         ax.fill_between(X, Y_ag, Y_for, where=Y_for >= Y_ag, interpolate=True, alpha=0.85, color=line_1[0].get_color())
         ax.fill_between(X, Y_ag, Y_for, where=Y_ag > Y_for, interpolate=True, alpha=0.85, color=line_2[0].get_color())
-        ax.set_title(f"{selected_team} xG Rolling Average (3 Matches)", fontsize=12)
+        ax.set_title(f"{selected_team} xG Rolling Average (6 Matches)", fontsize=12)
         ax.legend()
 
         st.pyplot(fig)
