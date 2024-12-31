@@ -9,5 +9,5 @@ st.subheader('Filter to see the Flowchart by your favorite team \n (Also ajdust 
 print('Success')
 
 # python xg_moving_average/streamlit/test.py
-# Streamlit run
+# Streamlit run:
 # streamlit run xg_moving_average/streamlit/test.py
