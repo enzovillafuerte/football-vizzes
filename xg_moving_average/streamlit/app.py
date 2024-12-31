@@ -14,10 +14,11 @@ from PIL import Image
 st.title("xG Rolling Average Visualization")
 st.sidebar.header("Team Selection")
 
+# Instead of definining teams manually, planning on using one the files of xG model_v21, filter based on soure (ud) and df['team'].unique()
 # Define teams available on Understat
 teams_list = [
     "Barcelona", "Real_Madrid", "Atletico_Madrid", "Sevilla",
-    "VfB_Stuttgart", "Bayern_Munich", "Chelsea", "Arsenal"
+    "VfB_Stuttgart", "Bayern_Munich", "Chelsea", "Arsenal", 
 ]  # Add more teams as needed
 
 selected_team = st.sidebar.selectbox("Select a team:", teams_list)
@@ -95,6 +96,10 @@ if selected_team:
         ax.legend()
 
         st.pyplot(fig)
+
+        if '_' in selected_team:
+            # Code to replace the '_' for a ' '
+            selected_team = selected_team.replace("_", " ")
 
         # Add a placeholder for team logo
         st.sidebar.image(f"team_logos/{selected_team}.png", caption=selected_team, use_column_width=True)

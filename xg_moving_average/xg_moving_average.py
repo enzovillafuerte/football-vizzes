@@ -286,6 +286,10 @@ fig_text(
 
 
 # Adjust the image programatically - Pull the logo from Figures folder, similar to post_game_viz.py
+if '_' in team:
+    # Code to replace the '_' for a ' '
+    team = team.replace("_", " ")
+
 
 logo_ax = fig.add_axes([0.75, .99, 0.13, 0.13], zorder=1)
 club_icon = mpimg.imread(f'team_logos/{team}.png')
