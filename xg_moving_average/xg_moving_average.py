@@ -326,3 +326,4 @@ print('Success')
 # python xg_moving_average/xg_moving_average.py Sevilla
 # python xg_moving_average/xg_moving_average.py Arsenal
 # python xg_moving_average/xg_moving_average.py Girona
+# python xg_moving_average/xg_moving_average.py Real_Madrid
