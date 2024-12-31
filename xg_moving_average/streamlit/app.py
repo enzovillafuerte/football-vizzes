@@ -16,10 +16,21 @@ st.sidebar.header("Team Selection")
 
 # Instead of definining teams manually, planning on using one the files of xG model_v21, filter based on soure (ud) and df['team'].unique()
 # Define teams available on Understat
-teams_list = [
-    "Barcelona", "Real_Madrid", "Atletico_Madrid", "Sevilla",
-    "VfB_Stuttgart", "Bayern_Munich", "Chelsea", "Arsenal", 
-]  # Add more teams as needed
+teams_list = ['Liverpool', 'Chelsea', 'Arsenal', 'Nottingham_Forest', 'Manchester_City', 'Aston_Villa', 
+                'Bournemouth', 'Fulham', 'Brighton', 'Brentford', 'Newcastle_United', 'Tottenham', 
+                'Manchester_United', 'West_Ham', 'Crystal_Palace', 'Everton', 'Leicester', 'Ipswich', 
+                'Wolverhampton_Wanderers', 'Southampton', 'Atletico_Madrid', 'Barcelona', 'Real_Madrid', 
+                'Athletic_Club', 'Mallorca', 'Villarreal', 'Real_Sociedad', 'Osasuna', 'Real_Betis', 
+                'Girona', 'Sevilla', 'Celta_Vigo', 'Rayo_Vallecano', 'Las_Palmas', 'Leganes', 'Getafe', 
+                'Alaves', 'Espanyol', 'Real_Valladolid', 'Valencia', 'Bayern_Munich', 'Bayer_Leverkusen', 
+                'RasenBallsport_Leipzig', 'Eintracht_Frankfurt', 'Freiburg', 'VfB_Stuttgart', 'Werder_Bremen', 
+                'Mainz_05', 'Borussia_Dortmund', 'Borussia_M.Gladbach', 'Wolfsburg', 'Union_Berlin', 'Augsburg', 
+                'Hoffenheim', 'St._Pauli', 'FC_Heidenheim', 'Holstein_Kiel', 'Bochum', 'Paris_Saint_Germain', 'Monaco', 
+                'Marseille', 'Lille', 'Lyon', 'Lens', 'Nice', 'Auxerre', 'Toulouse', 'Reims', 'Brest', 'Strasbourg', 
+                'Rennes', 'Nantes', 'Saint-Etienne', 'Angers', 'Le_Havre', 'Montpellier', 'Atalanta', 'Napoli', 'Inter',
+                 'Lazio', 'Fiorentina', 'Juventus', 'Bologna', 'AC_Milan', 'Udinese', 'Empoli', 'Torino', 'Genoa', 'Roma',
+                  'Lecce', 'Parma_Calcio_1913', 'Verona', 'Como', 'Cagliari', 'Venezia', 'Monza']
+
 
 selected_team = st.sidebar.selectbox("Select a team:", teams_list)
 
@@ -102,7 +113,7 @@ if selected_team:
             selected_team = selected_team.replace("_", " ")
 
         # Add a placeholder for team logo
-        st.sidebar.image(f"team_logos/{selected_team}.png", caption=selected_team, use_column_width=True)
+        st.sidebar.image(f"team_logos/{selected_team}.png", caption=selected_team, use_container_width=True)
 
 
 # streamlit run xg_moving_average/streamlit/app.py
