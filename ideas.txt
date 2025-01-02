@@ -9,7 +9,7 @@ To-Dos:
 
 Potential Projects:
 
-- (BI) - This in Way back to US would be Nice | xG progression flowchart over time. Example of use case, Compare xG and xGA of Barca's Xavi vs Flick
+- [IN PROGRESS STREAMLIT APP] (BI) - This in Way back to US would be Nice | xG progression flowchart over time. Example of use case, Compare xG and xGA of Barca's Xavi vs Flick
         * Use understat links to scrape the data from https://understat.com/team/Barcelona/2024
         * Load into a dataframe and build the vizz. Refer to project from a couple years ago for base code
 
