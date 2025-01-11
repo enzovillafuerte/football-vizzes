@@ -131,8 +131,10 @@ X = pd.Series(range(len(Y_for)))
 # Compute the rolling average (min_periods is used for the partial average)
 # 3 game rolling average
 
-Y_for = Y_for.rolling(window=6, min_periods = 0).mean()
-Y_ag = Y_ag.rolling(window=6, min_periods = 0).mean()
+rolling_avg = 6
+
+Y_for = Y_for.rolling(window=rolling_avg, min_periods = 0).mean()
+Y_ag = Y_ag.rolling(window=rolling_avg, min_periods = 0).mean()
 
 #####
 # Plot the data
@@ -274,7 +276,7 @@ fig_text(
 
 fig_text(
     x=0.12, y=1.02,
-    s = f"Expected goals <created> and <conceded> | 6-match rolling average\nBy Enzo Villafuerte",
+    s = f"Expected goals <created> and <conceded> | {rolling_avg}-match rolling average\nBy Enzo Villafuerte",
     highlight_textprops = [
         {"color": line_1[0].get_color(), "weight": "bold"},
         {"color": line_2[0].get_color(), "weight": "bold"}
@@ -331,3 +333,4 @@ print('Success')
 # python xg_moving_average/xg_moving_average.py Arsenal
 # python xg_moving_average/xg_moving_average.py Girona
 # python xg_moving_average/xg_moving_average.py Real_Madrid
+# python xg_moving_average/xg_moving_average.py Bayern_Munich

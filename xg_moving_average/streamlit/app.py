@@ -88,8 +88,9 @@ if selected_team:
             lambda row: row['xG_a'] if row['h_title'] == selected_team else row['xG_h'], axis=1
         )
 
-        Y_for = df['team_xG'].rolling(window=6, min_periods=0).mean()
-        Y_ag = df['team_xGA'].rolling(window=6, min_periods=0).mean()
+        # Rolling
+        Y_for = df['team_xG'].rolling(window=1, min_periods=0).mean()
+        Y_ag = df['team_xGA'].rolling(window=1, min_periods=0).mean()
         X = pd.Series(range(len(Y_for)))
 
         # Plot
