@@ -89,8 +89,10 @@ if selected_team:
         )
 
         # Rolling
-        Y_for = df['team_xG'].rolling(window=1, min_periods=0).mean()
-        Y_ag = df['team_xGA'].rolling(window=1, min_periods=0).mean()
+        rolling_avg = 6
+
+        Y_for = df['team_xG'].rolling(window=rolling_avg, min_periods=0).mean()
+        Y_ag = df['team_xGA'].rolling(window=rolling_avg, min_periods=0).mean()
         X = pd.Series(range(len(Y_for)))
 
         # Plot
@@ -104,7 +106,7 @@ if selected_team:
 
         ax.fill_between(X, Y_ag, Y_for, where=Y_for >= Y_ag, interpolate=True, alpha=0.85, color=line_1[0].get_color())
         ax.fill_between(X, Y_ag, Y_for, where=Y_ag > Y_for, interpolate=True, alpha=0.85, color=line_2[0].get_color())
-        ax.set_title(f"{selected_team} xG Rolling Average (6 Matches)", fontsize=12)
+        ax.set_title(f"{selected_team} xG Rolling Average ({rolling_avg} Matches)", fontsize=12)
         ax.legend()
 
         st.pyplot(fig)
