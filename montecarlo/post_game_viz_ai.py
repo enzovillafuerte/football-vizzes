@@ -400,6 +400,12 @@ ax_away.axis('off')  # Hide the axis
 fig_away.savefig('montecarlo/Figures/away_team_logo.png', bbox_inches='tight', transparent=True)
 plt.close(fig_away)  # Close the figure to release memory
 
+
+
+
+
+
+
 # ------------- CANVAS SECTION ---------------------
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -445,7 +451,7 @@ c.setFillColorRGB(1, 1, 1)  # RGB values for white
 c.rect(0, 0, 780, 900, fill=True)  # Draw a filled rectangle with the white background
 
 # xG Flowchart- Sample of Images Import
-c.drawImage(f'montecarlo/Figures/xGFlowchart.png', 10, 130) #, width=270, height=220) - Avoid fixing sizes at it messes up image quality
+c.drawImage(f'montecarlo/Figures/xGFlowchart.png', 10, 140) #, width=270, height=220) - Avoid fixing sizes at it messes up image quality
 
 # Montecarlo Graphs
 c.drawImage(f'montecarlo/Figures/H2HMontecarlo.png', 35, 550)
@@ -597,25 +603,156 @@ for prediction in formatted_predictions:
 
 ####### AI Generated Section
 # Let's create a designated area with a light background to visualize the space
-c.setFillColor(HexColor('#F5F5F5'))  # Light gray background
-c.rect(52, 35, 600, 85, fill=True)  # x, y, width, height
+#c.setFillColor(HexColor('#F5F5F5'))  # Light gray background
+#c.rect(50, 35, 620, 85, fill=True)  # x, y, width, height
 
 # Optional: Add a header for the analysis section
-c.setFont('RobotoThin', 15)
+c.setFont('RobotoThin', 14)
 c.setFillColor(primary_text)
-c.drawString(50, 130, "Match Analysis")
+c.drawString(10, 135, "AI Generated Match Analysis:")
 
 # You can add placeholder text to visualize how it will look
-c.setFont('RobotoThin', 10)
-c.setFillColor(primary_text)
-c.drawString(54, 100, "This space will contain AI-generated match analysis.")
+#c.setFont('RobotoThin', 10)
+#c.setFillColor(primary_text)
+#c.drawString(54, 100, "This space will contain AI-generated match analysis.")
+
+#########################################################
+# ------------- LLM (OPENAI) INCORPORATION ---------------------
+#########################################################
+from openai import OpenAI
+import os
+from dotenv import load_dotenv
+
+# Load and verify the environment variables
+load_dotenv('devcontainer.dev')
+api_key = os.getenv('OPENAI_API_KEY')
+print(f"API Key found: {'Yes' if api_key else 'No'}")
+
+# Only create client if we have the key
+if api_key:
+    client = OpenAI(api_key=api_key)
+else:
+    raise ValueError("No OpenAI API key found in environment variables")
+
+# Defining functions for the PROMPT Generation
+
+def generate_match_analysis_prompt(
+    home_team,
+    away_team,
+    home_xg,
+    away_xg,
+    home_goals,
+    away_goals,
+    predictions_output
+):
+    """ Creating detailed prompt for the LLM """
+
+    prompt = f"""
+    Analyze this football match based on the following statistics:
+
+    Match Result: {home_team} {home_goals} - {away_goals} {away_team}
+    Expected Goals (xG): {home_team} {home_xg:.2f} - {away_xg:.2f} {away_team}
+    
+    Simulation Probabilities:
+    - {home_team} win: {predictions_output[home_team]:.1%}
+    - {away_team} win: {predictions_output[away_team]:.1%}
+    - Draw: {predictions_output['Draw']:.1%}
+    - Over 2.5 goals: {predictions_output['+2.5']:.1%}
+    - Under 2.5 goals: {predictions_output['-2.5']:.1%}
+
+    Provide a concise 3-4 sentence analysis of the match focusing on:
+    1. Whether the result reflects the quality of chances (xG)
+    2. What the simulation probabilities suggest about the match
+    3. Any significant over/underperformance by either team
+
+    Keep the tone analytical and objective.
+    """
+    return prompt
+
+
+
+def get_ai_analysis(match_data):
+    """Get AI-generated analysis using OpenAI API"""
+    try:
+        client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        
+        prompt = generate_match_analysis_prompt(
+            match_data['home_team'],
+            match_data['away_team'],
+            match_data['home_xg'],
+            match_data['away_xg'],
+            match_data['home_goals'],
+            match_data['away_goals'],
+            match_data['predictions_output']
+        )
+        
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a football match analyst providing concise, data-driven analysis."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=150
+        )
+        
+        return response.choices[0].message.content
+
+    except Exception as e:
+        print(f"Error generating AI analysis: {e}")
+        return "Analysis unavailable at this time."
+
+    
+# In your main code where you're creating the PDF:
+match_data = {
+    'home_team': home_team,
+    'away_team': away_team,
+    'home_xg': home_ov_data,
+    'away_xg': away_ov_data,
+    'home_goals': home_score_data,
+    'away_goals': away_score_data,
+    'predictions_output': predictions_output
+}
+
+analysis_text = get_ai_analysis(match_data)
+
+# Function to wrap text (as we defined earlier)
+def wrap_text(text, width, font_name, font_size):
+    words = text.split()
+    lines = []
+    current_line = []
+    current_width = 0
+    
+    for word in words:
+        word_width = c.stringWidth(word + " ", font_name, font_size)
+        if current_width + word_width <= width:
+            current_line.append(word)
+            current_width += word_width
+        else:
+            lines.append(" ".join(current_line))
+            current_line = [word]
+            current_width = word_width
+    
+    if current_line:
+        lines.append(" ".join(current_line))
+    return lines
+
+
+
+
+# Draw the analysis in the designated area
+wrapped_lines = wrap_text(analysis_text, 470, 'RobotoThin', 10)
+y_position = 110  # Adjust based on your layout
+for line in wrapped_lines:
+    c.drawString(10, y_position, line)
+    y_position -= 15
 
 # Signature
 c.setFont('RobotoThin', 12)
 c.setFillColorRGB(1,1,1)  # Set text color to white
 c.setFillColor(primary_text) # change color dynamically to match home_team
 title = f"Enzo Villafuerte"
-c.drawString(300, 15, title)
+c.drawString(300, 500, title)
 
 # Save and close the PDF file
 c.save()
