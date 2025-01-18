@@ -605,6 +605,7 @@ c.drawString(300, 15, title)
 # Save and close the PDF file
 c.save()
 
+
 # Running section
 print(predictions_output)
 print('Success')

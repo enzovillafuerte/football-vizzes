@@ -287,7 +287,7 @@ for _, row in goal_shots.iterrows():
     ax.text(row['minute'] - 18.5, row['cumulative_xG'], row['player'], fontsize=7, color='black', va='bottom', ha='left')
 
 # Adding titles and labels
-ax.set_title(f'{home_team} vs {away_team} xG Flowchart', fontsize=8)
+#ax.set_title(f'{home_team} vs {away_team} xG Flowchart', fontsize=8)
 ax.set_xlabel('Minute', fontsize=6)
 ax.set_ylabel('Cumulative xG', fontsize=6)
 ax.legend(fontsize=6)
@@ -435,7 +435,7 @@ from reportlab.lib.colors import HexColor
 # save the report dynamically according to name in montecarlo/reports/home_team_away_team.pdf
 
 # Prefixing the sizes of the canvas
-width, height = 700, 600
+width, height = 700, 700
 
 # Creating the canvas in the appropiate directory
 c = canvas.Canvas(f'montecarlo/Reports/{home_team} vs {away_team}.pdf', pagesize=(width, height))
@@ -445,15 +445,15 @@ c.setFillColorRGB(1, 1, 1)  # RGB values for white
 c.rect(0, 0, 780, 900, fill=True)  # Draw a filled rectangle with the white background
 
 # xG Flowchart- Sample of Images Import
-c.drawImage(f'montecarlo/Figures/xGFlowchart.png', 10, 30) #, width=270, height=220) - Avoid fixing sizes at it messes up image quality
+c.drawImage(f'montecarlo/Figures/xGFlowchart.png', 10, 130) #, width=270, height=220) - Avoid fixing sizes at it messes up image quality
 
 # Montecarlo Graphs
-c.drawImage(f'montecarlo/Figures/H2HMontecarlo.png', 35, 450)
-c.drawImage(f'montecarlo/Figures/OUMontecarlo.png', 450, 450)
+c.drawImage(f'montecarlo/Figures/H2HMontecarlo.png', 35, 550)
+c.drawImage(f'montecarlo/Figures/OUMontecarlo.png', 450, 550)
 
 # Adding Logos Programatically
-c.drawImage(f'montecarlo/Figures/home_team_logo.png', 500, 500, width = 90, height=90)
-c.drawImage(f'montecarlo/Figures/away_team_logo.png', 585, 500, width = 90, height=90)
+c.drawImage(f'montecarlo/Figures/home_team_logo.png', 500, 600, width = 90, height=90)
+c.drawImage(f'montecarlo/Figures/away_team_logo.png', 585, 600, width = 90, height=90)
 
 # Text
 URL4 = 'https://raw.githubusercontent.com/googlefonts/roboto/main/src/hinted/Roboto-Thin.ttf'
@@ -465,7 +465,7 @@ c.setFont('RobotoThin', 30)
 c.setFillColorRGB(1,1,1)  # Set text color to white
 c.setFillColor(primary_text) # change color dynamically to match home_team
 title = f"{home_team} vs {away_team}"
-c.drawString(50, 550, title)
+c.drawString(50, 650, title)
 
 ############ Subtitle - xG
 # Filtering to sum the xG Data per team
@@ -478,13 +478,13 @@ c.setFont('RobotoThin', 15)
 c.setFillColorRGB(1,1,1)  # Set text color to white
 c.setFillColor(primary_text) # change color dynamically to match home_team
 title = f"Expected Goals (xG)"
-c.drawString(285, 500, title)
+c.drawString(285, 600, title)
 
 c.setFont('RobotoThin', 30)
 c.setFillColorRGB(1,1,1)  # Set text color to white
 c.setFillColor(primary_text) # change color dynamically to match home_team
 title = f"{home_ov_data} - {away_ov_data}"
-c.drawString(280, 470, title)
+c.drawString(280, 570, title)
 
 
 
@@ -496,7 +496,7 @@ c.setFont('RobotoThin', 30)
 c.setFillColorRGB(1,1,1)  # Set text color to white
 c.setFillColor(primary_text) # change color dynamically to match home_team
 title = f"{home_score_data} - {away_score_data}"
-c.drawString(50, 520, title)
+c.drawString(50, 620, title)
 
 # xG Over/Underperformance
 h_xg_performance = home_score_data - home_ov_data
@@ -524,7 +524,7 @@ else:
 
 # Draw h_xg_performance with the arrow
 h_title = f"{round(h_xg_performance, 2)} {h_arrow}"
-c.drawString(280, 435, h_title)
+c.drawString(280, 535, h_title)
 
 # Determine and set the color for a_xg_performance and add the arrow
 if a_xg_performance >= 0:
@@ -537,7 +537,7 @@ else:
 # Draw a_xg_performance with the arrow
 a_title = f"{round(a_xg_performance, 2)} {a_arrow}"
 text_width = c.stringWidth(h_title, 'RobotoThin', 20)  # Calculate width of the first part
-c.drawString(360, 435, a_title)
+c.drawString(360, 535, a_title)
 
 ### Finalization of xG performance section
 
@@ -546,13 +546,13 @@ c.setFont('RobotoThin', 12)
 c.setFillColorRGB(1,1,1)  # Set text color to white
 c.setFillColor(primary_text) # change color dynamically to match home_team
 title = f"H2H Simulation"
-c.drawString(55, 435, title)
+c.drawString(55, 535, title)
 
 c.setFont('RobotoThin', 12)
 c.setFillColorRGB(1,1,1)  # Set text color to white
 c.setFillColor(primary_text) # change color dynamically to match home_team
 title = f"O/U Simulation"
-c.drawString(465, 435, title)
+c.drawString(465, 535, title)
 
 ############ Text - Probabilities for H2H
 c.setFont('RobotoThin', 10)
@@ -566,7 +566,7 @@ predictions = list(predictions_output.values())[:3]
 formatted_predictions = [f"{label} {value*100:.2f}%" for label, value in zip(labels, predictions)]
 
 # Set initial y-coordinate for text and step for line spacing
-x, y = 55, 420
+x, y = 55, 520
 line_spacing = 12  # Adjust line spacing as needed
 
 # Draw each formatted value on a new line
@@ -586,7 +586,7 @@ predictions = list(predictions_output.values())[3:]
 formatted_predictions = [f"{label} {value*100:.2f}%" for label, value in zip(labels, predictions)]
 
 # Set initial y-coordinate for text and step for line spacing
-x, y = 466, 420
+x, y = 466, 520
 line_spacing = 12  # Adjust line spacing as needed
 
 # Draw each formatted value on a new line
@@ -595,8 +595,23 @@ for prediction in formatted_predictions:
     y -= line_spacing  # Move down for the next line
 
 
+####### AI Generated Section
+# Let's create a designated area with a light background to visualize the space
+c.setFillColor(HexColor('#F5F5F5'))  # Light gray background
+c.rect(52, 35, 600, 85, fill=True)  # x, y, width, height
+
+# Optional: Add a header for the analysis section
+c.setFont('RobotoThin', 15)
+c.setFillColor(primary_text)
+c.drawString(50, 130, "Match Analysis")
+
+# You can add placeholder text to visualize how it will look
+c.setFont('RobotoThin', 10)
+c.setFillColor(primary_text)
+c.drawString(54, 100, "This space will contain AI-generated match analysis.")
+
 # Signature
-c.setFont('RobotoThin', 16)
+c.setFont('RobotoThin', 12)
 c.setFillColorRGB(1,1,1)  # Set text color to white
 c.setFillColor(primary_text) # change color dynamically to match home_team
 title = f"Enzo Villafuerte"
@@ -619,10 +634,10 @@ Further improvements:
 # Dynamic string: c.drawString(50 + text_width, 435, a_title)
 # Color palette from: https://brandguides.brandfolder.com/beautiful-dashboards/themes#starry-night
 # To run python montecarlo/post_game_viz.py 'url'
-# python montecarlo/post_game_viz.py 'https://understat.com/match/26733'
+# python montecarlo/post_game_viz_ai.py 'https://understat.com/match/26733'
 # python montecarlo/post_game_viz.py 'https://understat.com/match/27851'
 # python montecarlo/post_game_viz.py 'https://understat.com/match/26726'
 # python montecarlo/post_game_viz.py 'https://understat.com/match/27864'
 # python montecarlo/post_game_viz.py 'https://understat.com/match/26753'
 # python montecarlo/post_game_viz.py 'https://understat.com/match/27160'
-# python montecarlo/post_game_viz.py 'https://understat.com/match/26791'
+# python montecarlo/post_game_viz_ai.py 'https://understat.com/match/26791'
