@@ -759,6 +759,9 @@ c.save()
 
 # Running section
 print(predictions_output)
+print('')
+print(f'{analysis_text}')
+print('')
 print('Success')
 
 
