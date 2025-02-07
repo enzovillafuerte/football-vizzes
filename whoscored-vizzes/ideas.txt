@@ -1,0 +1,23 @@
+# Post - match dashboards
+
+# Pass Network - Universitario de Deportes
+
+# Dynamic vizzes with pitures of players (Use nx metrics)
+
+## Best player - MOTM
+## Most Central Node 
+## Clusters (Triangles)
+## Biggest Possesive Threat (xT)
+## Biggest Shooting Threat (xG)
+
+
+# Add Montecarlo stuff if possible
+
+
+##              Montecarlo viz
+
+##  Pass Network  |    Dynamic Players Viz
+
+
+
+
