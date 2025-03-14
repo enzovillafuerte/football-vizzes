@@ -27,26 +27,26 @@ player_dict = {
 
     # Sporting Cristal
     # https://www.clubsportingcristal.pe/index.php/plantel-profesional
-    'D. Enríquez': ,
-    'R. Solís': ,
-    'A. Duarte': ,
+    'D. Enríquez': 1432728 ,
+    'R. Solís': 834699,
+    'A. Duarte': 930546,
     'C. Bautista': ,
-    'F. Alcedo': ,
-    'G. Chávez': ,
-    'R. Lutiger': ,
-    'L. Sosa': ,
-    'J. Lora': ,
-    'F. Romero': ,
-    'N. Pasquini': ,
-    'A. Pósito': ,
-    'L. Díaz': ,
+    'F. Alcedo': 1254926,
+    'G. Chávez': 840182,
+    'R. Lutiger': 1049675,
+    'L. Sosa': 581722,
+    'J. Lora': 1188651,
+    'F. Romero': 690324 ,
+    'N. Pasquini': 414440,
+    'A. Pósito':  ,
+    'L. Díaz': 1274397,
     'F. Cassiano': ,
     'F. Lora': ,
-    'J. Pretell': ,
-    'C. Gonzales': ,
-    'Y. Yotún': ,
+    'J. Pretell': 922898,
+    'C. Gonzales': 428274,
+    'Y. Yotún': 116911,
     'Maxloren Castro': ,
-    'M. Távara': ,
+    'M. Távara': 834703 ,
     'Ian Wisdom': ,
     'Jostin Alarcón': 1254284,
     'Y. Del Valle': ,
@@ -92,23 +92,6 @@ player_dict = {
     'S. Peralta': ,
     'J. Navea': ,
     'K. Quevedo': 831684,
-
-    # Melgar 
-    # https://espndeportes.espn.com/futbol/equipo/plantel/_/id/7312/team.melgar
-    'Carlos Cáceda': ,
-    'R. Farro': ,
-    'P. Barrios'
-
-
-
-
-
-
-
-
-
-
-
 
 
 }
