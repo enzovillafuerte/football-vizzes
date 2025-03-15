@@ -233,15 +233,13 @@ def scraping_whoscored(whoscored_url):
 
     return final_df
 
+# Maybe change the focus on Expected Threat, Momentum and Network Science metrics
+# Most dangerous in terms of shots
+# FRAME IT AS POSSESSION-ANALYSIS
 
 def montecarlo_analysis(df):
 
-    team_list = ['Universitario de Deportes']
-
-    # Get a list of unique teams from the dataset
-    teams_list = df['team'].unique.to_list()
-
-
+    # No xG in the dataset unfortunately
 
 
 
