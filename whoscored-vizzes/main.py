@@ -268,8 +268,8 @@ def report_generation():
 def main():
     
     df = scraping_whoscored(whoscored_url)
-    data.to_csv('whoscored-vizzes/sample.csv', index=False)
-    print(data.head())
+    df.to_csv('whoscored-vizzes/sample.csv', index=False)
+    print(df.head())
 
 
 if __name__ == "__main__":
