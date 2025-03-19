@@ -19,6 +19,46 @@ import urllib
 from PIL import Image
 from mplsoccer import Pitch, VerticalPitch, FontManager, Sbopen
 
+from pathlib import Path
+
+
+from matplotlib.colors import LinearSegmentedColormap
+
+from plottable import ColumnDefinition, Table
+from plottable.cmap import normed_cmap
+from plottable.formatters import decimal_to_percent
+from plottable.plots import circled_image # image
+from plottable.plots import image
+
+
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from highlight_text import fig_text
+from PIL import Image
+import urllib
+from mplsoccer import Radar, FontManager, grid
+import numpy as np
+import matplotlib.patheffects as path_effects
+from highlight_text import ax_text, fig_text
+from pathlib import Path
+from urllib.request import urlopen
+from io import BytesIO
+import requests
+import os
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from PIL import Image
+
+import urllib
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+
 
 ############################################################################################
 ## Section 0 - User Input
@@ -231,24 +271,115 @@ def scraping_whoscored(whoscored_url):
     # Saving the file for later in CSV
     # final_df.to_csv(f'Datasets/{new_variable}.csv', index=False)
 
-    return final_df
+    # Extracting Home and Away Team Names
+    home_team_name = matchdict['home']['name']
+    away_team_name = matchdict['away']['name']
+
+    return home_team_name, away_team_name, final_df
 
 # Maybe change the focus on Expected Threat, Momentum and Network Science metrics
 # Most dangerous in terms of shots
 # FRAME IT AS POSSESSION-ANALYSIS
 
-def montecarlo_analysis(df):
+def extract_goals(df, home_team, away_team):
 
-    # No xG in the dataset unfortunately
+    # This one is the one that works!!
+    # lambda for creating new column named 'goal_scored'
+    df['goal_scored'] = df.apply(lambda x: 1 if x['is_goal'] == True else 0, axis=1)
+
+    all_teams = [home_team, away_team]
+    goals_df = df.groupby('team', as_index=False).agg({'goal_scored': 'sum'}).set_index('team')
+
+    # Ensure all teams are included, filling missing values with 0
+    goals_df = goals_df.reindex(all_teams, fill_value=0).reset_index()
+
+    return goals_df
 
 
 
-    pass
 
 
-def pass_network():
+def pass_network(df, main_color, marker_color, szobo_color, szobo_2_color, list_of_teams):
 
-    pass
+    # Filter to keep only records that correspond to a team of interest
+    df = df[df['team'].isin(list_of_teams)]
+
+    # Creating dataframe only of substitution records
+    subs = df[df['type_display_name'] == 'SubstitutionOff']
+    # Only keeping the minute variable of this new sub df
+    subs = subs['minute']
+    first_sub = subs.min()
+    
+    # Keeping the data only with records before first substitution
+    df = df[df['minute'] < first_sub].reset_index()
+    
+    # Creating new variables
+    df['passer'] = df['name']
+    df['receiver'] = df['name'].shift(-1)
+    
+    # Only interested in successful passes
+    df = df[df['type_display_name'] == 'Pass']
+    df = df[df['outcome_type_display_name'] == 'Successful']
+    
+    # Calculating Average Locations of Players
+    avg_locations = df.groupby('passer').agg({'x':['mean'], 'y':['mean', 'count']})
+    avg_locations.columns = ['x', 'y', 'count']
+    avg_locations
+    
+    # Passes between players (Count of Associations)
+    pass_between = df.groupby(['passer', 'receiver']).id.count().reset_index()
+    pass_between.rename({'id':'pass_count'}, axis='columns', inplace=True)
+    
+    # Merging DataFrames
+    pass_between = pass_between.merge(avg_locations, left_on='passer',right_index=True)
+    pass_between = pass_between.merge(avg_locations, left_on='receiver',right_index=True,suffixes=['','_end'])
+    
+    ################## Pitch Generation Section ##################
+    
+    # Setting the text color (labels and texts)
+    rcParams['text.color'] = marker_color
+    
+    # Setting parameters for Plotting
+    max_line_width = 10
+    max_marker_size = 85
+    szobo_marker_size = 275
+
+    # Adjusting marker size based on the passer (Szoboslai)
+    pass_between['marker_size'] = pass_between.apply(lambda row: szobo_marker_size if row['passer'] == 'Jairo Concha' else max_marker_size, axis=1)
+    pass_between['marker_color'] = pass_between.apply(lambda row: szobo_color if row['passer'] == 'Jairo Concha' else marker_color, axis=1)
+
+    # Setting up the width of the pass lines
+    pass_between['width'] = (pass_between.pass_count / pass_between.pass_count.max() * max_line_width)
+
+    # Setting color for pass connections involving Szoboslai
+    # Setting up a Player B just in case for future modifications
+    pass_between['line_color'] = pass_between.apply(lambda row: szobo_2_color if row['passer'] == 'Jairo Concha' or row['passer'] == 'Player B' else marker_color, axis=1)
+
+    rcParams['text.color'] = '#c7d5cc'
+    
+    # Plotting
+    pitch = Pitch(pitch_type='opta', pitch_color=main_color, line_color='#c7d5cc')
+    fig, ax = pitch.draw(figsize=(9.5, 8), constrained_layout=True, tight_layout=False) # (8.5, 8.5
+    fig.set_facecolor(main_color)
+
+    # Drawing the pass lines (links/edges)
+    pass_lines = pitch.lines(pass_between.x, pass_between.y,
+                         pass_between.x_end, pass_between.y_end, lw=pass_between.width,
+                         color=pass_between.line_color, zorder=1, ax=ax)
+
+    # Drawing the nodes (players)
+    nodes = pitch.scatter(pass_between.x, pass_between.y, s=pass_between.marker_size,
+                      color=pass_between.marker_color, edgecolors=marker_color, linewidth=1.5, alpha=1, zorder=1, ax=ax)
+
+    # Labeling the nodes with player name
+    #for i, txt in enumerate(pass_between['passer']):
+     #   ax.annotate(txt, (pass_between.x.iloc[i], pass_between.y.iloc[i]), color='#A3D3D3', fontsize=5, ha='center', va='bottom',xytext=(0, 12), textcoords='offset points')
+
+    # Setting the title
+    #ax_title = ax.set_title(f'Pass Network', fontsize=15) #, color='white')
+    
+    fig.savefig('whoscored-vizzes/figures_temp/pass_network.png', dpi=100, bbox_inches='tight') #dpi=300
+    
 
 def individual_stats():
 
@@ -267,9 +398,27 @@ def report_generation():
 
 def main():
     
-    df = scraping_whoscored(whoscored_url)
-    df.to_csv('whoscored-vizzes/sample.csv', index=False)
-    print(df.head())
+    # Colors
+    colors_a = ['#192745', '#4B2583', '#b29400', '#d1d3d4'] # https://issuu.com/vistaprevia/docs/manual_de_identidad_de_marca_-_al
+    colors_u = ['#FFFEF4', '#A6192E', '#000000', '#C6AA76', '#A7A8A9'] # https://universitario.pe/media/download/prensa/ID_Manual_Universitario_2020.pdf
+    colors_sc = ['#E20A17', '#3ABFF0', '#FCDB18'] # FONDO BLANCO # https://issuu.com/andrebendezu777/docs/manual_identidad_sc_bendezu_andre
+
+    # List of tems of interest
+    list_of_teams = ['Universitario de Deportes', 'Alianza Lima', 'Sporting Cristal']
+
+
+    # ------------------ Scrapping Function ---------------------
+    # home_team, away_team, df = scraping_whoscored(whoscored_url)
+    # df.to_csv('whoscored-vizzes/sample.csv', index=False)
+    # print(df.head())
+    df = pd.read_csv('whoscored-vizzes/sample.csv')
+
+    # ------------------ Network Science Function ---------------------
+    
+    # ------------------ Pass Network Function ---------------------
+    pass_network(df, colors_u[0] , colors_u[1] , colors_u[3] , colors_u[4], list_of_teams)
+
+    
 
 
 if __name__ == "__main__":
