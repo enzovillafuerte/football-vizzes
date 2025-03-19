@@ -356,11 +356,9 @@ def pass_network_networkx(df, list_of_teams):
     plt.savefig('whoscored-vizzes/figures_temp/networkx_graph.png')
     # plt.show()
 
+    metrics_df[['Betweenness Centrality', 'Clustering Coefficient']] = metrics_df[['Betweenness Centrality', 'Clustering Coefficient']].round(2)
+
     return metrics_df
-
-
-
-
 
 
 
@@ -449,6 +447,69 @@ def pass_network(df, main_color, marker_color, szobo_color, szobo_2_color, list_
     fig.savefig('whoscored-vizzes/figures_temp/pass_network.png', dpi=100, bbox_inches='tight') #dpi=300
     
 
+
+def xT_grid(df, list_of_teams):
+
+    # Keeping only specific Team records
+    df = df.loc[(df['team'].isin(list_of_teams)) & (df['type_display_name']=='Pass') & (df['outcome_type_display_name']=='Successful')]
+
+    # xT Grid
+    xT = np.array([
+        [0.006383, 0.007796, 0.008449, 0.009777, 0.011263, 0.012483, 0.014736, 0.017451, 0.021221, 0.027563, 0.034851, 0.037926],
+        [0.007501, 0.008786, 0.009424, 0.010595, 0.012147, 0.013845, 0.016118, 0.018703, 0.024015, 0.029533, 0.040670, 0.046477],
+        [0.008880, 0.009777, 0.010013, 0.011105, 0.012692, 0.014291, 0.016856, 0.019351, 0.024122, 0.028552, 0.054911, 0.064426],
+        [0.009411, 0.010827, 0.010165, 0.011324, 0.012626, 0.014846, 0.016895, 0.019971, 0.023851, 0.035113, 0.108051, 0.257454],
+        [0.009411, 0.010827, 0.010165, 0.011324, 0.012626, 0.014846, 0.016895, 0.019971, 0.023851, 0.035113, 0.108051, 0.257454],
+        [0.008880, 0.009777, 0.010013, 0.011105, 0.012692, 0.014291, 0.016856, 0.019351, 0.024122, 0.028552, 0.054911, 0.064426],
+        [0.007501, 0.008786, 0.009424, 0.010595, 0.012147, 0.013845, 0.016118, 0.018703, 0.024015, 0.029533, 0.040670, 0.046477],
+        [0.006383, 0.007796, 0.008449, 0.009777, 0.011263, 0.012483, 0.014736, 0.017451, 0.021221, 0.027563, 0.034851, 0.037926]
+    ])
+
+    xT_rows, xT_cols = xT.shape
+    
+    # Categorizing each record in a bin for starting point and ending point
+    df['x1_bin'] = pd.cut(df['x'], bins = xT_cols, labels=False)
+    df['y1_bin'] = pd.cut(df['y'], bins = xT_rows, labels=False)
+
+    df['x2_bin'] = pd.cut(df['end_x'], bins = xT_cols, labels=False)
+    df['y2_bin'] = pd.cut(df['end_y'], bins = xT_rows, labels=False)
+    
+    # Defining start zone and end zone values of passes (kinda like x,y coordinates in a map plot)
+    df['start_zone_value'] = df[['x1_bin', 'y1_bin']].apply(lambda x: xT[x[1]][x[0]],axis=1)
+    df['end_zone_value'] = df[['x2_bin', 'y2_bin']].apply(lambda x: xT[x[1]][x[0]],axis=1)
+
+        # The difference of end_zone and start_zone is the expected threat value for the action (pass) - not accounting for dribble xT here
+    # Value can be negative or positive (progressive)
+    df['Pass xT'] = df['end_zone_value'] - df['start_zone_value']
+    # Progressive xT measures progressive passes
+    df['Progressive xT'] = ''
+    
+    # Iterating and filling values for Progressive xT
+    counter = 0 
+
+    while counter < len(df):
+        if df['Pass xT'][counter] > 0:
+            df['Progressive xT'][counter] = df['Pass xT'][counter]
+        else:
+            df['Progressive xT'][counter] = 0.00
+        counter += 1
+
+
+    # xT chart
+    xT_gb = df.groupby(by='name', as_index=False).agg({'Pass xT': 'sum', 'Progressive xT': 'sum'}).sort_values(by='Progressive xT', ascending=False).reset_index(drop=True)
+
+    xT_gb[['Pass xT', 'Progressive xT']] = xT_gb[['Pass xT', 'Progressive xT']].astype(float).round(2)
+
+    #xT_gb.sort_values(by='Progressi
+    xT_gb[['Pass xT', 'Progressive xT']] = xT_gb[['Pass xT', 'Progressive xT']].round(2) 
+
+    return xT_gb
+
+
+
+
+
+
 def individual_stats():
 
     # Player with more xG
@@ -487,7 +548,9 @@ def main():
     # ------------------ Pass Network Function ---------------------
     pass_network(df, colors_u[0] , colors_u[1] , colors_u[3] , colors_u[4], list_of_teams, networkx_df)
 
-    
+    # ------------------ Expected Threat Function ---------------------
+    xT_gb = xT_grid(df, list_of_teams)
+
 
 
 if __name__ == "__main__":
