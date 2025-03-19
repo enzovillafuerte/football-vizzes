@@ -60,6 +60,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 
 
+import networkx as nx
+
 ############################################################################################
 ## Section 0 - User Input
 ############################################################################################
@@ -297,9 +299,75 @@ def extract_goals(df, home_team, away_team):
 
 
 
+def pass_network_networkx(df, list_of_teams):
+
+    # Filter only to keep records that correspond to a team
+    df = df[df['team'].isin(list_of_teams)]
+
+    # Creating dataframe only of substitution records
+    subs = df[df['type_display_name'] == 'SubstitutionOff']
+    subs = subs['minute']
+    first_sub = subs.min()
+
+    # Keeping data before first substitution
+    df = df[df['minute'] < first_sub].reset_index()
+
+    # Creating new variables
+    df['passer'] = df['name']
+    df['receiver'] = df['name'].shift(-1)
+
+    # Only successful passes
+    df = df[df['type_display_name'] == 'Pass']
+    df = df[df['outcome_type_display_name'] == 'Successful']
+
+    # Create a directed graph
+    G = nx.DiGraph()
+
+    # Add edges (passes) to the graph with weights
+    for _, row in df.iterrows():
+        passer = row['passer']
+        receiver = row['receiver']
+        if G.has_edge(passer, receiver):
+            G[passer][receiver]['weight'] += 1
+        else:
+            G.add_edge(passer, receiver, weight=1)
+
+    # Compute network metrics
+    degree_centrality = nx.degree_centrality(G)  # How connected a player is
+    betweenness_centrality = nx.betweenness_centrality(G, weight='weight')  # How often a player is in shortest paths
+    clustering_coeff = nx.clustering(G.to_undirected())  # How well players form triangles
+    triangles = nx.triangles(G.to_undirected())  # Number of triangles each player is involved in
+
+    # Store results in a DataFrame
+    metrics_df = pd.DataFrame({
+        'name': list(G.nodes),
+        'Degree Centrality': [degree_centrality[p] for p in G.nodes],
+        'Betweenness Centrality': [betweenness_centrality[p] for p in G.nodes],
+        'Clustering Coefficient': [clustering_coeff[p] for p in G.nodes],
+        'Triangles': [triangles[p] for p in G.nodes]
+    }).sort_values(by='Degree Centrality', ascending=False)
+
+    # Plot the network
+    plt.figure(figsize=(8, 6))
+    pos = nx.spring_layout(G)  # Positioning of nodes
+    nx.draw(G, pos, with_labels=True, node_size=500, node_color="lightblue", edge_color="gray", font_size=8, width=[d['weight'] / 2 for (_, _, d) in G.edges(data=True)])
+    
+    plt.title("Pass Network")
+    plt.savefig('whoscored-vizzes/figures_temp/networkx_graph.png')
+    # plt.show()
+
+    return metrics_df
 
 
-def pass_network(df, main_color, marker_color, szobo_color, szobo_2_color, list_of_teams):
+
+
+
+
+
+def pass_network(df, main_color, marker_color, szobo_color, szobo_2_color, list_of_teams, nx_df):
+
+    # Player of interest - Player with higest Degree Centrality
+    szobo_player = nx_df['name'][0]
 
     # Filter to keep only records that correspond to a team of interest
     df = df[df['team'].isin(list_of_teams)]
@@ -345,15 +413,15 @@ def pass_network(df, main_color, marker_color, szobo_color, szobo_2_color, list_
     szobo_marker_size = 275
 
     # Adjusting marker size based on the passer (Szoboslai)
-    pass_between['marker_size'] = pass_between.apply(lambda row: szobo_marker_size if row['passer'] == 'Jairo Concha' else max_marker_size, axis=1)
-    pass_between['marker_color'] = pass_between.apply(lambda row: szobo_color if row['passer'] == 'Jairo Concha' else marker_color, axis=1)
+    pass_between['marker_size'] = pass_between.apply(lambda row: szobo_marker_size if row['passer'] == szobo_player else max_marker_size, axis=1)
+    pass_between['marker_color'] = pass_between.apply(lambda row: szobo_color if row['passer'] == szobo_player else marker_color, axis=1)
 
     # Setting up the width of the pass lines
     pass_between['width'] = (pass_between.pass_count / pass_between.pass_count.max() * max_line_width)
 
     # Setting color for pass connections involving Szoboslai
     # Setting up a Player B just in case for future modifications
-    pass_between['line_color'] = pass_between.apply(lambda row: szobo_2_color if row['passer'] == 'Jairo Concha' or row['passer'] == 'Player B' else marker_color, axis=1)
+    pass_between['line_color'] = pass_between.apply(lambda row: szobo_2_color if row['passer'] == szobo_player or row['passer'] == 'Player B' else marker_color, axis=1)
 
     rcParams['text.color'] = '#c7d5cc'
     
@@ -414,9 +482,10 @@ def main():
     df = pd.read_csv('whoscored-vizzes/sample.csv')
 
     # ------------------ Network Science Function ---------------------
+    networkx_df = pass_network_networkx(df, list_of_teams)
     
     # ------------------ Pass Network Function ---------------------
-    pass_network(df, colors_u[0] , colors_u[1] , colors_u[3] , colors_u[4], list_of_teams)
+    pass_network(df, colors_u[0] , colors_u[1] , colors_u[3] , colors_u[4], list_of_teams, networkx_df)
 
     
 
