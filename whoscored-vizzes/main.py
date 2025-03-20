@@ -963,9 +963,35 @@ def report_generation(home_team, away_team, goals_df, main_color):
     c.setFont("DejaVuSans", 38)  # Title font size
     #c.setFont("GothamBold", 56)  # Title font size
 
+    def add_watermark(canvas):
+        """Adds a diagonal watermark to the center of the page"""
+        # Save the current state
+        canvas.saveState()
+        
+        # Set watermark properties
+        canvas.setFillColorRGB(0.7, 0.7, 0.7, 0.05)  # Light gray with 10% opacity
+        canvas.setFont("DejaVuSans", 100)  # Large font size
+        
+        # Rotate and position the text
+        canvas.translate(width/2, height/2)  # Move to center of page
+        canvas.rotate(45)  # Rotate 45 degrees
+        
+        # Calculate text width for centering
+        text = "Enzo Villafuerte"
+        text_width = canvas.stringWidth(text, "DejaVuSans", 100)
+        
+        # Draw the text centered
+        canvas.drawString(-text_width/2, 0, text)
+        
+        # Restore the original state
+        canvas.restoreState()
+
     ''' BACKGROUND COLOR '''
-    c.setFillColorRGB(*hex_to_rgb(main_color))  # Ensure correct hex color
+    c.setFillColorRGB(*hex_to_rgb(main_color))
     c.rect(0, 0, width, height, fill=True)
+    
+    # Add watermark after background color but before other content
+    add_watermark(c)
     
     ''' LOGOS '''
     c.drawImage(f"whoscored-vizzes/figures_temp/logos_combined.png", 950,1170)
@@ -1035,6 +1061,8 @@ def report_generation(home_team, away_team, goals_df, main_color):
     add_section_header(c, "Overall Pass Analysis", 440, 50)
     add_section_header(c, "Network Science", 1250, 900)
     add_section_header(c, "Most Dangerous (xT)", 440, 900)
+
+    add_watermark(c)
 
     # Save the report
     c.save()
