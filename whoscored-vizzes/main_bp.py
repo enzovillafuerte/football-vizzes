@@ -996,9 +996,9 @@ def report_generation(home_team, away_team, goals_df, main_color):
     ''' ADD SUBTITLE '''
     c.setFont("DejaVuSans", 28)  # Subtitle font size
     c.setFillColorRGB(0, 0, 0)  # White text / Black
-    # c.drawString(40, 352, "Overall Pass Stats")  # Subtitle positioned manually
-    # c.drawString(835, 352, "Most Dangerous (xT)")  # Subtitle positioned manually
-    #c.drawString(835, 998, "Network Science")  # Subtitle positioned manually
+    c.drawString(40, 352, "Overall Pass Stats")  # Subtitle positioned manually
+    c.drawString(835, 352, "Most Dangerous (xT)")  # Subtitle positioned manually
+    c.drawString(835, 998, "Network Science")  # Subtitle positioned manually
     
     c.drawString(30, 1230, "Copa Libertadores: Posession Match Report")  # Subtitle positioned manually
     
@@ -1007,29 +1007,6 @@ def report_generation(home_team, away_team, goals_df, main_color):
     #c.drawString(30, 1230, "*")  # Subtitle positioned manually
     #c.drawString(30, 1230, "*")  # Subtitle positioned manually
     #c.drawString(30, 1230, "*")  # Subtitle positioned manually
-
-    def add_section_header(canvas, text, y_position, x_position):
-        canvas.setFont("Helvetica-Bold", 34)
-        canvas.drawString(x_position, y_position, text)
-        canvas.setLineWidth(0.5)
-        canvas.line(x_position -50, y_position-5, x_position + 700, y_position-5)
-        
-    def add_explanation_box(canvas, title, explanation, y_position, x_position):
-        canvas.setFont("Helvetica-Bold", 18)
-        canvas.drawString(x_position, y_position, title)
-        canvas.setFont("Helvetica", 8)
-        canvas.drawString(x_position, y_position-12, explanation)
-        
-    # Add metric explanations
-    add_explanation_box(c, "Expected Threat (xT)",
-                       "Measures the probability of a pass leading to a goal within the next few actions",
-                       1200, 50)
-    
-    # Add visual section breaks
-    add_section_header(c, "Passing Network Analysis", 1000, 50)
-    add_section_header(c, "Overall Pass Analysis", 400, 50)
-    add_section_header(c, "Network Science", 1000, 900)
-    add_section_header(c, "Most Dangerous (xT)", 400, 900)
 
     # Save the report
     c.save()
