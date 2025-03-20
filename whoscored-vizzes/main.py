@@ -886,6 +886,18 @@ def create_logo_figure(home_team, away_team, main_color):
     plt.close()
 
 
+def goal_generation(df, home_team, away_team):
+
+    # lambda for creating new column named 'goal_scored'
+    df['goal_scored'] = df.apply(lambda x: 1 if x['is_goal'] == True else 0, axis=1)
+
+    all_teams = [home_team, away_team]
+    goals_df = df.groupby('team', as_index=False).agg({'goal_scored': 'sum'}).set_index('team')
+
+    # Ensure all teams are included, filling missing values with 0
+    goals_df = goals_df.reindex(all_teams, fill_value=0).reset_index()
+    
+    return goals_df
 
 
 
@@ -893,8 +905,7 @@ def create_logo_figure(home_team, away_team, main_color):
 
 
 
-
-def report_generation():
+def report_generation(home_team, away_team, goals_df, main_color):
 
     # Importing all needed libraries here to avoid conflicts
     import pandas as pd
@@ -927,6 +938,7 @@ def report_generation():
     from reportlab.pdfbase import pdfmetrics
 
 
+
     def hex_to_rgb(hex):
         hex = hex.lstrip('#')  # Remove leading '#'
         r = int(hex[0:2], 16) / 255.0
@@ -935,12 +947,70 @@ def report_generation():
         return r, g, b
     
 
+    width, height = 1300, 1300
+    c = canvas.Canvas(f"whoscored-vizzes/Reports/{home_team} vs {away_team} Report.pdf", pagesize=(width, height))
+    
+    #home_team = home_team
+    #away_team = away_team
+    
+    home_score = goals_df[goals_df['team'] == home_team]['goal_scored'].tolist()
+    away_score = goals_df[goals_df['team'] == home_team]['goal_scored'].tolist()
+    
+    
+
+    # **REGISTER DEJAVU SANS FONT**
+    pdfmetrics.registerFont(TTFont('DejaVuSans', 'whoscored-vizzes/DejaVuSans.ttf'))
+    #pdfmetrics.registerFont(TTFont('GothamBold', 'GothamBold.ttf'))
+    
+    # Set font
+    c.setFont("DejaVuSans", 38)  # Title font size
+    #c.setFont("GothamBold", 56)  # Title font size
+
+    ''' BACKGROUND COLOR '''
+    c.setFillColorRGB(*hex_to_rgb(main_color))  # Ensure correct hex color
+    c.rect(0, 0, width, height, fill=True)
+    
+    ''' LOGOS '''
+    c.drawImage(f"whoscored-vizzes/figures_temp/logos_combined.png", 950,970)
+    
+    ''' ADD TITLE '''
+    c.setFillColorRGB(0, 0, 0)  # White color for title text
+
+    c.drawString(30, 1180, f"{home_team} {home_score} vs {away_team} {away_score}")
+    
 
 
 
+    
 
+    ''' PASS NETWORK GRAPH '''
+    c.drawImage('whoscored-vizzes/figures_temp/pass_network.png', 20, 450)  # Adjust positioning as needed
 
-    pass
+    # Add tables
+    c.drawImage('whoscored-vizzes/figures_temp/table_passes.png', 20, 30)
+    c.drawImage('whoscored-vizzes/figures_temp/table_xT.png', 825, 30)
+    c.drawImage('whoscored-vizzes/figures_temp/table_nwx_Betweenness Centrality.png', 825, 440)
+    c.drawImage('whoscored-vizzes/figures_temp/table_nwx_Clustering Coefficient.png', 825, 620)
+    c.drawImage('whoscored-vizzes/figures_temp/table_nwx_Degree Centrality.png', 825, 800)
+    
+    ''' ADD SUBTITLE '''
+    c.setFont("DejaVuSans", 28)  # Subtitle font size
+    c.setFillColorRGB(0, 0, 0)  # White text / Black
+    c.drawString(40, 352, "Overall Pass Stats")  # Subtitle positioned manually
+    c.drawString(835, 352, "Most Dangerous (xT)")  # Subtitle positioned manually
+    c.drawString(835, 998, "Network Science")  # Subtitle positioned manually
+    
+    c.drawString(30, 1230, "Copa Libertadores: Posession Match Report")  # Subtitle positioned manually
+    
+    c.setFont("DejaVuSans", 18)  # Subtitle font size
+    c.drawString(30, 1030, "* xT: Expected Threat")  # Subtitle positioned manually
+    #c.drawString(30, 1230, "*")  # Subtitle positioned manually
+    #c.drawString(30, 1230, "*")  # Subtitle positioned manually
+    #c.drawString(30, 1230, "*")  # Subtitle positioned manually
+
+    # Save the report
+    c.save()
+
 
 
 
@@ -960,6 +1030,10 @@ def main():
     # df.to_csv('whoscored-vizzes/sample.csv', index=False)
     # print(df.head())
     df = pd.read_csv('whoscored-vizzes/sample.csv')
+
+    # ------------------ Extracting Score and Goal ---------------------
+    # goals_df = goal_generation(df, home_team, away_team)
+    goals_df = goal_generation(df, 'Universitario de Deportes', 'Junior FC')
 
     # ------------------ Network Science Function ---------------------
     networkx_df = pass_network_networkx(df, list_of_teams)
@@ -984,7 +1058,10 @@ def main():
     # create_logo_figure(home_team, away_team, colors_u[0]) # This should work, commeting out for testing
     create_logo_figure('Universitario de Deportes', 'Junior FC', colors_u[0])
 
-    
+    # ------------------ Report Generation ---------------------
+    # report_generation(home_team, away_team, goals_df, colors_u[0]) # This should work, commeting out for testing
+    report_generation('Universitario de Deportes', 'Junior FC', goals_df, colors_u[0])
+
 
 
 
