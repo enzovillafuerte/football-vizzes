@@ -75,11 +75,29 @@ if len(sys.argv) <2:
 # Storing the url     
 whoscored_url = sys.argv[1]
 
+# Mapping
+mapping = {
+    
+    'Rodrigo Ureña':'R. Ureña', 
+    'Matías Di Benedetto':'Di Benedetto', 
+    'Williams Riveros':'William Riveros',
+    'Aldo Corzo': 'Aldo Corzo', 
+    'Andy Polo':'Andy Polo' , 
+    'Martín Pérez Guedes': 'Perez Guedes', 
+    'Jairo Concha': 'J. Concha',
+    #'Segundo Portocarrero', 
+    'Édison Flores':'E. Flores', 
+    'Sebastián Britos': 'S. Britos',
+    'Jorge Murrugarra': 'Murrugarra', 
+    'Álex Valera':'A. Valera'
+    
+}
+
 ############################################################################################
 ## Section 1 - Scraping from Whoscored with Selenium
 ############################################################################################
 
-def scraping_whoscored(whoscored_url):
+def scraping_whoscored(whoscored_url, mapping):
 
     ''' Explanation...'''
 
@@ -253,6 +271,9 @@ def scraping_whoscored(whoscored_url):
     # SQL Schema -> primary key in Players table and foreign key in events
     players_df = pd.merge(players_df, teams_df, on='team_id')
     final_df = pd.merge(df, players_df, on='player_id')
+
+    # Mapping to rename players
+    final_df['name'] = final_df['name'].replace(mapping) 
 
     # Sorting the df in ascending for minute and second
     final_df = final_df.sort_values(by=['minute', 'second'], ascending=True)
@@ -482,18 +503,10 @@ def xT_grid(df, list_of_teams):
     # Value can be negative or positive (progressive)
     df['Pass xT'] = df['end_zone_value'] - df['start_zone_value']
     # Progressive xT measures progressive passes
-    df['Progressive xT'] = ''
+    df['Progressive xT'] = 0.0  # Initialize with zeros instead of empty string
     
-    # Iterating and filling values for Progressive xT
-    counter = 0 
-
-    while counter < len(df):
-        if df['Pass xT'][counter] > 0:
-            df['Progressive xT'][counter] = df['Pass xT'][counter]
-        else:
-            df['Progressive xT'][counter] = 0.00
-        counter += 1
-
+    # Replace the while loop with a more pandas-friendly approach
+    df['Progressive xT'] = df['Pass xT'].apply(lambda x: x if x > 0 else 0.0)
 
     # xT chart
     xT_gb = df.groupby(by='name', as_index=False).agg({'Pass xT': 'sum', 'Progressive xT': 'sum'}).sort_values(by='Progressive xT', ascending=False).reset_index(drop=True)
@@ -504,6 +517,31 @@ def xT_grid(df, list_of_teams):
     xT_gb[['Pass xT', 'Progressive xT']] = xT_gb[['Pass xT', 'Progressive xT']].round(2) 
 
     return xT_gb
+
+
+def general_pass_actions(df, list_of_teams):
+
+    passes_df = df[(df['type_display_name'] == 'Pass') & df['team'].isin(list_of_teams)] 
+
+    passes_gp = passes_df.groupby(by='name', as_index=False).agg({'type_display_name':'count'}).sort_values(by='type_display_name', ascending=False).reset_index(drop=True)
+
+    succ_pass_df = passes_df[passes_df['outcome_type_display_name'] == 'Successful']
+    succ_passes_gp = succ_pass_df.groupby(by='name', as_index=False).agg({'type_display_name':'count'}).sort_values(by='type_display_name', ascending=False).reset_index(drop=True)
+
+    merged_passes = pd.merge(passes_gp, succ_passes_gp, how='inner', on='name')
+
+    merged_passes.rename(columns={'type_display_name_x' : 'Total Passes' , 'type_display_name_y': 'Successful Passes'}, inplace=True)
+
+    merged_passes['Succ (%)'] = round(merged_passes['Successful Passes'] / merged_passes['Total Passes'] * 100,2)
+
+
+    # merged_passes['Succ (%)'] = merged_passes['Succ (%)'].apply(lambda x: f"{x:.1f}%")
+
+    # Keeping only record with more than 10 passes
+    merged_passes = merged_passes[merged_passes['Total Passes'] >= 10]
+
+    return merged_passes
+
 
 
 
@@ -537,7 +575,7 @@ def main():
 
 
     # ------------------ Scrapping Function ---------------------
-    # home_team, away_team, df = scraping_whoscored(whoscored_url)
+    # home_team, away_team, df = scraping_whoscored(whoscored_url, mapping)
     # df.to_csv('whoscored-vizzes/sample.csv', index=False)
     # print(df.head())
     df = pd.read_csv('whoscored-vizzes/sample.csv')
