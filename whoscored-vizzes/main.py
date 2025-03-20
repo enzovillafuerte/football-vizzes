@@ -20,7 +20,7 @@ from PIL import Image
 from mplsoccer import Pitch, VerticalPitch, FontManager, Sbopen
 
 from pathlib import Path
-
+import matplotlib
 
 from matplotlib.colors import LinearSegmentedColormap
 
@@ -49,7 +49,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+#from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 from PIL import Image
@@ -543,21 +543,402 @@ def general_pass_actions(df, list_of_teams):
     return merged_passes
 
 
+def beaut_table_passes(df, main_color):
+
+    overall = df # Creating a copy for the cmap
+    df = df.sort_values(by='Succ (%)', ascending=False)
+    
+    # Keep the TOP 3 Passers
+    df = df.head(3)
+    # Reset the index (to avoid any existing index) and then add 1 to the index values
+    df.reset_index(drop=True, inplace=True)
+    df.index += 1
+    
+    # Read in the logos
+    df['badge'] = df['name'].apply(
+        lambda x: f"whoscored-vizzes/players_png/{x}.png"
+    )
+    
+    #define color map
+    # We should change the color map depending on the team we are analyzing
+    cmap = LinearSegmentedColormap.from_list(
+    name="bugw", colors=["#ffffff", "#f2fbd2", "#c9ecb4", "#93d3ab", "#35b0ab"], N=256
+    )
+    
+    df = df[['badge', 'name', 'Total Passes', 'Successful Passes', 'Succ (%)']]
+    
+    col_defs = (
+        
+        [
+            ColumnDefinition(
+                name='name',
+                title='Player',
+                textprops={"ha": "left", "weight": "bold", 'color':'black'},
+                width=2.5,
+                
+            ),
+            
+            ColumnDefinition(
+                name='index',
+                title="",
+                textprops={"ha": "left", 'color':'black'},
+                width=0.25,
+            ),
+            
+            ColumnDefinition(
+                name='Total Passes',
+                textprops={"ha": "left", 'color':'black'},
+                width=2,
+            ),
+            
+            ColumnDefinition(
+                name='Successful Passes',
+                title='Succ. Passes',
+                textprops={"ha": "left", 'color':'black'},
+                width=2,
+            ),
+            
+
+            
+            ColumnDefinition(
+                name="Succ (%)",
+                width=2,
+                textprops={
+                    "ha":"center",
+                    "bbox": {"boxstyle": "circle", "pad": 0.45},
+                    'color':'black',
+                },
+                cmap=normed_cmap(overall["Succ (%)"], cmap=matplotlib.cm.PiYG, num_stds=2.5),
+            ),
+            
+            ColumnDefinition(
+                name="badge",
+                title="",
+                textprops={"ha": "center", "va": "center"}, #, 'color': bg_color},
+                width=0.6,
+                plot_fn=image,
+            )
+        ]
+        
+        
+    )
+    
+    # Graph
+    plt.rcParams["font.family"] = ["DejaVu Sans"]
+    plt.rcParams["savefig.bbox"] = "tight"
+    
+    fig, ax = plt.subplots(figsize=(4.5, 2))
+    
+    # **Set Background Color**
+    bg_color = main_color  # Change this to any color you want
+    fig.patch.set_facecolor(bg_color)
+    ax.set_facecolor(bg_color)
+    
+    table = Table(
+        df,
+        column_definitions=col_defs,
+        row_dividers=True,
+        footer_divider=True,
+        ax=ax,
+        textprops={"fontsize": 6},
+        row_divider_kw={"linewidth": 1, "linestyle": (0, (1, 5))},
+        col_label_divider_kw={"linewidth": 0.1, "linestyle": "-"},
+        column_border_kw={"linewidth": 0.4, "linestyle": "-"},
+    )#.autoset_fontcolors(colnames=["xG", "xGA","xPTS", "xG per Game", "xGA per Game"])
+    
+    fig.savefig(f"whoscored-vizzes/figures_temp/table_passes.png", facecolor=ax.get_facecolor(), dpi=200)
+    
+    return df
+
+
+def beaut_table_xT(df, main_color):
+
+    overall = df 
+    # df = df.sort_values(by='', ascending=False)
+    
+    df = df.head(3)
+    # Reset the index (to avoid any existing index) and then add 1 to the index values
+    df.reset_index(drop=True, inplace=True)
+    df.index += 1
+    
+    # Read in the logos
+    df['badge'] = df['name'].apply(
+        lambda x: f"whoscored-vizzes/players_png/{x}.png"
+    )
+    
+    #define color map
+    cmap = LinearSegmentedColormap.from_list(
+    name="bugw", colors=["#ffffff", "#f2fbd2", "#c9ecb4", "#93d3ab", "#35b0ab"], N=256
+    )
+    
+    df = df[['badge', 'name', 'Progressive xT']]
+    
+    # df = df[['badge', 'name', 'Total Passes', 'Successful Passes', 'Succ (%)']]
+    
+    col_defs = (
+        
+        [
+            ColumnDefinition(
+                name='name',
+                title='Player',
+                textprops={"ha": "left", "weight": "bold", 'color':'black'},
+                width=0.5,
+                
+            ),
+            
+            ColumnDefinition(
+                name='index',
+                title="",
+                textprops={"ha": "left", 'color':'black'},
+                width=0.05,
+            ),
+
+            
+            ColumnDefinition(
+                name="Progressive xT",
+                width=2,
+                textprops={
+                    "ha":"center",
+                    "bbox": {"boxstyle": "roundtooth", "pad": 0.85},
+                    'color':'black',
+                },
+                cmap=normed_cmap(overall["Progressive xT"], cmap=matplotlib.cm.PiYG, num_stds=3.5),
+            ),
+            
+            ColumnDefinition(
+                name="badge",
+                title="",
+                textprops={"ha": "center", "va": "center"}, #, 'color': bg_color},
+                width=0.6,
+                plot_fn=image,
+            )
+        ]
+        
+        
+    )
+    
+    # Graph
+    plt.rcParams["font.family"] = ["DejaVu Sans"]
+    plt.rcParams["savefig.bbox"] = "tight"
+    
+    fig, ax = plt.subplots(figsize=(2.5, 2))
+    
+    # **Set Background Color**
+    bg_color = main_color  # Change this to any color you want
+    fig.patch.set_facecolor(bg_color)
+    ax.set_facecolor(bg_color)
+    
+    table = Table(
+        df,
+        column_definitions=col_defs,
+        row_dividers=True,
+        footer_divider=True,
+        ax=ax,
+        textprops={"fontsize": 6},
+        row_divider_kw={"linewidth": 1, "linestyle": (0, (1, 5))},
+        col_label_divider_kw={"linewidth": 0.1, "linestyle": "-"},
+        column_border_kw={"linewidth": 0.4, "linestyle": "-"},
+    )#.autoset_fontcolors(colnames=["xG", "xGA","xPTS", "xG per Game", "xGA per Game"])
+    
+    fig.savefig(f"whoscored-vizzes/figures_temp/table_xT.png", facecolor=ax.get_facecolor(), dpi=200)
+    
+    return df
+
+
+def beaut_table_network(df, metric, main_color):
+
+    overall = df 
+    df = df.sort_values(by=f'{metric}', ascending=False)
+    
+    df = df.head(1)
+    # Reset the index (to avoid any existing index) and then add 1 to the index values
+    
+    # Read in the logos
+    df['badge'] = df['name'].apply(
+        lambda x: f"whoscored-vizzes/players_png/{x}.png"
+    )
+    
+    #define color map
+    cmap = LinearSegmentedColormap.from_list(
+    name="bugw", colors=["#ffffff", "#f2fbd2", "#c9ecb4", "#93d3ab", "#35b0ab"], N=256
+    )
+    
+    df = df[['badge', 'name', metric]]
+    
+    df.reset_index(drop=True, inplace=True)
+    df.index += 1
+    
+    # df = df[['badge', 'name', 'Total Passes', 'Successful Passes', 'Succ (%)']]
+    
+    col_defs = (
+        
+        [
+            ColumnDefinition(
+                name='name',
+                title='Player',
+                textprops={"ha": "left", "weight": "bold", 'color':'black'},
+                width=0.5,
+                
+            ),
+            
+            ColumnDefinition(
+                name='index',
+                title="",
+                textprops={"ha": "left", 'color':'black'},
+                width=0.1,
+            ),
+
+            
+            ColumnDefinition(
+                name=f"{metric}",
+                width=2,
+                textprops={
+                    "ha":"center",
+                    "bbox": {"boxstyle": "darrow", "pad": 0.85},
+                    'color':'black',
+                },
+                cmap=normed_cmap(overall[f"{metric}"], cmap=matplotlib.cm.PiYG, num_stds=3.5),
+            ),
+            
+            ColumnDefinition(
+                name="badge",
+                title="",
+                textprops={"ha": "center", "va": "center"}, #, 'color': bg_color},
+                width=0.6,
+                plot_fn=image,
+            )
+        ]
+        
+        
+    )
+    
+    # Graph
+    plt.rcParams["font.family"] = ["DejaVu Sans"]
+    plt.rcParams["savefig.bbox"] = "tight"
+    
+    fig, ax = plt.subplots(figsize=(2.5, 1))
+    
+    # **Set Background Color**
+    bg_color = main_color  # Change this to any color you want
+    fig.patch.set_facecolor(bg_color)
+    ax.set_facecolor(bg_color)
+    
+    table = Table(
+        df,
+        column_definitions=col_defs,
+        row_dividers=True,
+        footer_divider=True,
+        ax=ax,
+        textprops={"fontsize": 6},
+        row_divider_kw={"linewidth": 1, "linestyle": (0, (1, 5))},
+        col_label_divider_kw={"linewidth": 0.1, "linestyle": "-"},
+        column_border_kw={"linewidth": 0.4, "linestyle": "-"},
+    )#.autoset_fontcolors(colnames=["xG", "xGA","xPTS", "xG per Game", "xGA per Game"])
+
+    fig.savefig(f"whoscored-vizzes/figures_temp/table_nwx_{metric}.png", facecolor=ax.get_facecolor(), dpi=200)
+    
+    return df
+
+def create_logo_figure(home_team, away_team, main_color):
+
+    import matplotlib.image as mpimg
+    from reportlab.pdfgen import canvas
+    from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.pdfbase import pdfmetrics
+
+    fig, ax = plt.subplots(figsize=(5, 2.5), dpi=300)  # Adjust figure size
+    ax.set_frame_on(False)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+
+    def add_logo(team, x_center):
+        """Loads a team logo and places it centered at x_center."""
+        logo_path = f"teams_png/{team}.png"
+        if os.path.exists(logo_path):
+            logo = mpimg.imread(logo_path)
+
+            # Get image aspect ratio
+            height, width, _ = logo.shape
+            aspect_ratio = width / height
+
+            # Define a square bounding box (0.35 width, 0.35 height)
+            logo_width = 0.2
+            logo_height = 0.2 / aspect_ratio  # Maintain aspect ratio
+
+            # Center the logo horizontally
+            x_left = x_center - (logo_width / 2)
+            y_bottom = 0.325  # Center it vertically
+
+            ax.imshow(logo, extent=[x_left, x_left + logo_width, y_bottom, y_bottom + logo_height])
+        else:
+            print(f"Missing logo: {team}.png")
+
+    # Add both team logos
+    add_logo(home_team, x_center=0.25)  # Left side
+    add_logo(away_team, x_center=0.48)  # Right side
+
+    ax.set_facecolor(main_color)  # Transparent background
+    plt.axis("off")
+
+    plt.savefig("whoscored-vizzes/figures_temp/logos_combined.png", bbox_inches="tight", pad_inches=0,facecolor=ax.get_facecolor())
+    plt.close()
 
 
 
 
 
-def individual_stats():
 
-    # Player with more xG
-    # Player with most passes
-    # Most Central Player
-    # Player with more xT
 
-    pass
+
+
 
 def report_generation():
+
+    # Importing all needed libraries here to avoid conflicts
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import matplotlib.ticker as ticker
+    from highlight_text import fig_text
+    from PIL import Image
+    import urllib
+    from mplsoccer import Radar, FontManager, grid
+    import numpy as np
+    import matplotlib.patheffects as path_effects
+    from highlight_text import ax_text, fig_text
+    from pathlib import Path
+    from urllib.request import urlopen
+    from io import BytesIO
+    import requests
+    import os
+    from reportlab.lib.pagesizes import letter
+    from reportlab.pdfgen import canvas
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import letter
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+    from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.pdfbase import pdfmetrics
+    from PIL import Image
+    import pandas as pd
+    import urllib
+    from reportlab.lib.utils import ImageReader
+    from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.pdfbase import pdfmetrics
+
+
+    def hex_to_rgb(hex):
+        hex = hex.lstrip('#')  # Remove leading '#'
+        r = int(hex[0:2], 16) / 255.0
+        g = int(hex[2:4], 16) / 255.0
+        b = int(hex[4:6], 16) / 255.0
+        return r, g, b
+    
+
+
+
+
+
 
     pass
 
@@ -588,6 +969,17 @@ def main():
 
     # ------------------ Expected Threat Function ---------------------
     xT_gb = xT_grid(df, list_of_teams)
+
+    # ------------------ General Pass Stats Function ---------------------
+    passes_df = general_pass_actions(df, list_of_teams)
+
+    # ------------------ Beautiful Tables Generation ---------------------
+    beaut_table_passes(passes_df, colors_u[0])
+    beaut_table_xT(xT_gb, colors_u[0])
+    beaut_table_network(networkx_df, 'Degree Centrality', colors_u[0])
+    beaut_table_network(networkx_df, 'Betweenness Centrality', colors_u[0])
+    beaut_table_network(networkx_df, 'Clustering Coefficient', colors_u[0])
+
 
 
 
