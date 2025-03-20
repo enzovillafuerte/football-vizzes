@@ -947,11 +947,8 @@ def report_generation(home_team, away_team, goals_df, main_color):
         return r, g, b
     
 
-    width, height = 1300, 1300
+    width, height = 1300, 1500
     c = canvas.Canvas(f"whoscored-vizzes/Reports/{home_team} vs {away_team} Report.pdf", pagesize=(width, height))
-    
-    #home_team = home_team
-    #away_team = away_team
     
     home_score = goals_df[goals_df['team'] == home_team]['goal_scored'].tolist()
     away_score = goals_df[goals_df['team'] == home_team]['goal_scored'].tolist()
@@ -971,12 +968,12 @@ def report_generation(home_team, away_team, goals_df, main_color):
     c.rect(0, 0, width, height, fill=True)
     
     ''' LOGOS '''
-    c.drawImage(f"whoscored-vizzes/figures_temp/logos_combined.png", 950,970)
+    c.drawImage(f"whoscored-vizzes/figures_temp/logos_combined.png", 950,1170)
     
     ''' ADD TITLE '''
     c.setFillColorRGB(0, 0, 0)  # White color for title text
 
-    c.drawString(30, 1180, f"{home_team} {home_score} vs {away_team} {away_score}")
+    c.drawString(30, 1425, f"{home_team} {home_score} vs {away_team} {away_score}")
     
 
 
@@ -984,29 +981,21 @@ def report_generation(home_team, away_team, goals_df, main_color):
     
 
     ''' PASS NETWORK GRAPH '''
-    c.drawImage('whoscored-vizzes/figures_temp/pass_network.png', 20, 450)  # Adjust positioning as needed
+    c.drawImage('whoscored-vizzes/figures_temp/pass_network.png', 20, 730)  # Adjust positioning as needed
 
     # Add tables
-    c.drawImage('whoscored-vizzes/figures_temp/table_passes.png', 20, 30)
-    c.drawImage('whoscored-vizzes/figures_temp/table_xT.png', 825, 30)
-    c.drawImage('whoscored-vizzes/figures_temp/table_nwx_Betweenness Centrality.png', 825, 440)
-    c.drawImage('whoscored-vizzes/figures_temp/table_nwx_Clustering Coefficient.png', 825, 620)
-    c.drawImage('whoscored-vizzes/figures_temp/table_nwx_Degree Centrality.png', 825, 800)
+    c.drawImage('whoscored-vizzes/figures_temp/table_passes.png', 20, 100)
+    c.drawImage('whoscored-vizzes/figures_temp/table_xT.png', 825, 100)
+    c.drawImage('whoscored-vizzes/figures_temp/table_nwx_Betweenness Centrality.png', 825, 725)
+    c.drawImage('whoscored-vizzes/figures_temp/table_nwx_Clustering Coefficient.png', 825, 900)
+    c.drawImage('whoscored-vizzes/figures_temp/table_nwx_Degree Centrality.png', 825, 1060)
     
     ''' ADD SUBTITLE '''
     c.setFont("DejaVuSans", 28)  # Subtitle font size
     c.setFillColorRGB(0, 0, 0)  # White text / Black
-    # c.drawString(40, 352, "Overall Pass Stats")  # Subtitle positioned manually
-    # c.drawString(835, 352, "Most Dangerous (xT)")  # Subtitle positioned manually
-    #c.drawString(835, 998, "Network Science")  # Subtitle positioned manually
-    
-    c.drawString(30, 1230, "Copa Libertadores: Posession Match Report")  # Subtitle positioned manually
+    c.drawString(30, 1380, "Copa Libertadores: Posession Match Report")
     
     c.setFont("DejaVuSans", 18)  # Subtitle font size
-    c.drawString(30, 1030, "* xT: Expected Threat")  # Subtitle positioned manually
-    #c.drawString(30, 1230, "*")  # Subtitle positioned manually
-    #c.drawString(30, 1230, "*")  # Subtitle positioned manually
-    #c.drawString(30, 1230, "*")  # Subtitle positioned manually
 
     def add_section_header(canvas, text, y_position, x_position):
         canvas.setFont("Helvetica-Bold", 34)
@@ -1015,21 +1004,37 @@ def report_generation(home_team, away_team, goals_df, main_color):
         canvas.line(x_position -50, y_position-5, x_position + 700, y_position-5)
         
     def add_explanation_box(canvas, title, explanation, y_position, x_position):
-        canvas.setFont("Helvetica-Bold", 18)
+        canvas.setFont("Helvetica-Bold", 24)
         canvas.drawString(x_position, y_position, title)
-        canvas.setFont("Helvetica", 8)
-        canvas.drawString(x_position, y_position-12, explanation)
+        canvas.setFont("Helvetica", 21)
+        canvas.drawString(x_position, y_position-20, explanation)
         
-    # Add metric explanations
+    # Add metric explanations - Moved to bottom with adjusted y-positions
     add_explanation_box(c, "Expected Threat (xT)",
                        "Measures the probability of a pass leading to a goal within the next few actions",
-                       1200, 50)
+                       70, 50)
+    
+    add_explanation_box(c, "Degree Centrality",
+                       "Shows how involved a player is in the team's passing game. Players with high values are key in ball circulation.",
+                       700, 50)
+    
+    add_explanation_box(c, "Betweenness Centrality",
+                       "Identifies players who act as bridges between different parts of the team. These players are crucial in transitioning from defense to attack.",
+                       580, 50)
+    
+    add_explanation_box(c, "Clustering Coefficient",
+                       "Reveals how well-connected groups of players are. High values suggest strong tactical understanding between nearby teammates.",
+                       640, 50)
+    
+    add_explanation_box(c, "By Enzo Villafuerte",
+                       "",
+                       1340, 30)
     
     # Add visual section breaks
-    add_section_header(c, "Passing Network Analysis", 1000, 50)
-    add_section_header(c, "Overall Pass Analysis", 400, 50)
-    add_section_header(c, "Network Science", 1000, 900)
-    add_section_header(c, "Most Dangerous (xT)", 400, 900)
+    add_section_header(c, "Passing Network Analysis", 1250, 50)
+    add_section_header(c, "Overall Pass Analysis", 440, 50)
+    add_section_header(c, "Network Science", 1250, 900)
+    add_section_header(c, "Most Dangerous (xT)", 440, 900)
 
     # Save the report
     c.save()
