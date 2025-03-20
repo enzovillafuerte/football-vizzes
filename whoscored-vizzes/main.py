@@ -855,7 +855,7 @@ def create_logo_figure(home_team, away_team, main_color):
 
     def add_logo(team, x_center):
         """Loads a team logo and places it centered at x_center."""
-        logo_path = f"teams_png/{team}.png"
+        logo_path = f"whoscored-vizzes/teams_png/{team}.png"
         if os.path.exists(logo_path):
             logo = mpimg.imread(logo_path)
 
@@ -979,6 +979,12 @@ def main():
     beaut_table_network(networkx_df, 'Degree Centrality', colors_u[0])
     beaut_table_network(networkx_df, 'Betweenness Centrality', colors_u[0])
     beaut_table_network(networkx_df, 'Clustering Coefficient', colors_u[0])
+
+    # ------------------ Logos Generation ---------------------
+    # create_logo_figure(home_team, away_team, colors_u[0]) # This should work, commeting out for testing
+    create_logo_figure('Universitario de Deportes', 'Junior FC', colors_u[0])
+
+    
 
 
 
