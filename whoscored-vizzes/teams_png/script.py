@@ -1,9 +1,18 @@
 team_dict = {
     
     'Universitario': 4409,
-    'Junior FC': 2254
-
-
+    'Junior FC': 2254,
+    'Alianza Lima': 6398,
+    'Sporting Cristal': 1848,
+    'River Plate': 10076,
+    'Independiente del Valle': 192875,
+    'Barcelona SC': 6453,
+    'Sao Paulo': 10277,
+    'Libertad': 6620,
+    'Talleres': 10101,
+    'Palmeiras': 10283,
+    'Bolivar': 5983,
+    'Cerro Porteno': 6295
 }
 
 # Download the PNGs
@@ -34,3 +43,5 @@ for team, team_id in team_dict.items():
 
     else: 
         print(f"Unable to download {team}")
+
+# python whoscored-vizzes/teams_png/script.py
