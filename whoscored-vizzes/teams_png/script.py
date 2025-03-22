@@ -1,6 +1,6 @@
 team_dict = {
     
-    'Universitario': 4409,
+    'Universitario de Deportes': 4409,
     'Junior FC': 2254,
     'Alianza Lima': 6398,
     'Sporting Cristal': 1848,

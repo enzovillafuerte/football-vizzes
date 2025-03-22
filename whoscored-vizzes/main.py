@@ -1068,17 +1068,34 @@ def report_generation(home_team, away_team, goals_df, main_color):
     c.save()
 
 
+def get_team_colors(home_team, away_team):
+
+    team_colors = {
+        'Universitario de Deportes': ['#FFFEF4', '#A6192E', '#000000', '#C6AA76', '#A7A8A9'],
+        'Alianza Lima': ['#192745', '#4B2583', '#b29400', '#d1d3d4', '#000000'],
+        'Sporting Cristal': ['#E20A17', '#3ABFF0', '#FCDB18', '#000000', '#000000']
+    }
+
+    # Check if home_team or away_team is in the dictionary
+    if home_team in team_colors:
+        return team_colors[home_team]
+    elif away_team in team_colors:
+        return team_colors[away_team]
+    else:
+        return ['#FFFFFF', '#000000', '#CCCCCC', '#888888', '#444444']  # Default colors if no match
+
 
 
 def main():
     
     # Colors
-    colors_a = ['#192745', '#4B2583', '#b29400', '#d1d3d4'] # https://issuu.com/vistaprevia/docs/manual_de_identidad_de_marca_-_al
-    colors_u = ['#FFFEF4', '#A6192E', '#000000', '#C6AA76', '#A7A8A9'] # https://universitario.pe/media/download/prensa/ID_Manual_Universitario_2020.pdf
-    colors_sc = ['#E20A17', '#3ABFF0', '#FCDB18'] # FONDO BLANCO # https://issuu.com/andrebendezu777/docs/manual_identidad_sc_bendezu_andre
+    #colors_a = ['#192745', '#4B2583', '#b29400', '#d1d3d4', '#000000'] # https://issuu.com/vistaprevia/docs/manual_de_identidad_de_marca_-_al
+    #colors_u = ['#FFFEF4', '#A6192E', '#000000', '#C6AA76', '#A7A8A9'] # https://universitario.pe/media/download/prensa/ID_Manual_Universitario_2020.pdf
+    #colors_sc = ['#E20A17', '#3ABFF0', '#FCDB18', '#000000', '#000000'] # FONDO BLANCO # https://issuu.com/andrebendezu777/docs/manual_identidad_sc_bendezu_andre
 
     # List of tems of interest
     list_of_teams = ['Universitario de Deportes', 'Alianza Lima', 'Sporting Cristal']
+
 
 
     # ------------------ Scrapping Function ---------------------
@@ -1086,6 +1103,13 @@ def main():
     # df.to_csv('whoscored-vizzes/sample.csv', index=False)
     # print(df.head())
     df = pd.read_csv('whoscored-vizzes/sample.csv')
+
+
+    # ------------------ Color Cust Function ---------------------
+    # Getting colors list
+    # colors_u = get_team_colors(home_team, away_team)
+    colors_u = get_team_colors('Universitario de Deportes', 'Junior FC')
+
 
     # ------------------ Extracting Score and Goal ---------------------
     # goals_df = goal_generation(df, home_team, away_team)
