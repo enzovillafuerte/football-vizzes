@@ -1099,21 +1099,21 @@ def main():
 
 
     # ------------------ Scrapping Function ---------------------
-    # home_team, away_team, df = scraping_whoscored(whoscored_url, mapping)
-    # df.to_csv('whoscored-vizzes/sample.csv', index=False)
+    home_team, away_team, df = scraping_whoscored(whoscored_url, mapping)
+    df.to_csv('whoscored-vizzes/sample.csv', index=False)
     # print(df.head())
-    df = pd.read_csv('whoscored-vizzes/sample.csv')
+    # df = pd.read_csv('whoscored-vizzes/sample.csv') # --
 
 
     # ------------------ Color Cust Function ---------------------
     # Getting colors list
-    # colors_u = get_team_colors(home_team, away_team)
-    colors_u = get_team_colors('Universitario de Deportes', 'Junior FC')
+    colors_u = get_team_colors(home_team, away_team)
+    # colors_u = get_team_colors('Universitario de Deportes', 'Junior FC') # --
 
 
     # ------------------ Extracting Score and Goal ---------------------
-    # goals_df = goal_generation(df, home_team, away_team)
-    goals_df = goal_generation(df, 'Universitario de Deportes', 'Junior FC')
+    goals_df = goal_generation(df, home_team, away_team)
+    # goals_df = goal_generation(df, 'Universitario de Deportes', 'Junior FC') # --
 
     # ------------------ Network Science Function ---------------------
     networkx_df = pass_network_networkx(df, list_of_teams)
@@ -1135,12 +1135,12 @@ def main():
     beaut_table_network(networkx_df, 'Clustering Coefficient', colors_u[0])
 
     # ------------------ Logos Generation ---------------------
-    # create_logo_figure(home_team, away_team, colors_u[0]) # This should work, commeting out for testing
-    create_logo_figure('Universitario de Deportes', 'Junior FC', colors_u[0])
+    create_logo_figure(home_team, away_team, colors_u[0]) # This should work, commeting out for testing
+    # create_logo_figure('Universitario de Deportes', 'Junior FC', colors_u[0]) # --
 
     # ------------------ Report Generation ---------------------
-    # report_generation(home_team, away_team, goals_df, colors_u[0]) # This should work, commeting out for testing
-    report_generation('Universitario de Deportes', 'Junior FC', goals_df, colors_u[0])
+    report_generation(home_team, away_team, goals_df, colors_u[0]) # This should work, commeting out for testing
+    # report_generation('Universitario de Deportes', 'Junior FC', goals_df, colors_u[0]) # --
 
 
 
