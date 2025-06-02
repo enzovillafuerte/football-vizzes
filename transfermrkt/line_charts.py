@@ -5,9 +5,25 @@ import seaborn as sns
 import json
 from datetime import datetime
 from matplotlib.ticker import FuncFormatter
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+from PIL import Image
+import os
 
 # Set the style for dark background
 plt.style.use('dark_background')
+
+def get_club_logo(club_name, zoom=0.1):  # Reduced zoom for better fit
+    """Load and return a club logo image if it exists."""
+    logo_path = os.path.join('team_logos', f'{club_name}.png')
+    try:
+        img = Image.open(logo_path)
+        # Convert to RGBA if not already
+        if img.mode != 'RGBA':
+            img = img.convert('RGBA')
+        return OffsetImage(img, zoom=zoom)
+    except (FileNotFoundError, IOError):
+        print(f"Logo not found for: {club_name}")  # Debug print
+        return None
 
 target_players = ['fernando pacheco', 'franco medina']
 
@@ -39,8 +55,8 @@ for player, pdata in filtered_players.items():
 
 df = pd.DataFrame(rows)
 
-# Create figure with dark background
-plt.figure(figsize=(12, 7))
+# Create figure with dark background and larger size
+plt.figure(figsize=(15, 8))  # Increased figure size
 fig = plt.gcf()
 fig.patch.set_facecolor('#1a1a1a')  # Dark blue background
 ax = plt.gca()
@@ -74,24 +90,21 @@ for i, (player, group) in enumerate(df.groupby('player')):
                     color='white',
                     fontsize=9)
     
-    # Add club transfer annotations
+    # Add club logo annotations for transfers
     for idx, row in group[group['is_transfer']].iterrows():
-        # Calculate offset based on player to avoid overlapping
-        y_offset = 25 if i == 0 else -25  # Alternate above/below for different players
-        
-        plt.annotate(row['club'],
-                    (row['date'], row['market_value_eur']),
-                    xytext=(0, y_offset),
-                    textcoords='offset points',
-                    ha='center',
-                    va='bottom' if i == 0 else 'top',
-                    color=colors[i],
-                    fontsize=10,
-                    fontweight='bold',
-                    bbox=dict(facecolor='#1a1a1a',
-                            edgecolor=colors[i],
-                            alpha=0.8,
-                            boxstyle='round,pad=0.3'))
+        logo = get_club_logo(row['club'])
+        if logo is not None:
+            y_offset = 30 if i == 0 else -40  # in points, above/below
+            ab = AnnotationBbox(
+                logo,
+                (row['date'], row['market_value_eur']),
+                xybox=(0, y_offset),
+                frameon=False,
+                xycoords='data',
+                boxcoords='offset points',
+                pad=0
+            )
+            ax.add_artist(ab)
 
 # Customize the plot
 plt.title('Market Value Progression Over Time', 
@@ -127,10 +140,13 @@ plt.legend(title='Player',
 # Add grid
 plt.grid(True, linestyle='--', alpha=0.2, color='white')
 
-# Adjust layout with extra padding for annotations
-plt.tight_layout(pad=3.0)
+# Adjust layout with more padding
+plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.15)
 
-plt.show()
+plt.tight_layout(pad=3.0)
+plt.savefig('transfermrkt/line_charts.png', dpi=200)
+
+# plt.show()
 
 
 
