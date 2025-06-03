@@ -106,6 +106,26 @@ for i, (player, group) in enumerate(df.groupby('player')):
             )
             ax.add_artist(ab)
 
+    # --- Add player headshot at the end of the line ---
+    last_row = group.iloc[-1]
+    player_img_path = os.path.join('whoscored-vizzes/players_png', f'{player}.png')
+    try:
+        img = Image.open(player_img_path)
+        img = img.convert('RGBA')
+        headshot = OffsetImage(img, zoom=0.24)
+        ab_headshot = AnnotationBbox(
+            headshot,
+            (last_row['date'], last_row['market_value_eur']),
+            xybox=(50, 0),  # 30 points to the right
+            frameon=False,
+            xycoords='data',
+            boxcoords='offset points',
+            pad=0
+        )
+        ax.add_artist(ab_headshot)
+    except Exception:
+        pass
+
 # Customize the plot
 plt.title('Market Value Progression Over Time', 
           fontsize=16, 
@@ -128,7 +148,7 @@ plt.gca().yaxis.set_major_formatter(FuncFormatter(format_currency))
 # Remove top and right spines
 sns.despine()
 
-# Add legend
+# Add legend (text and color line only)
 plt.legend(title='Player', 
           loc='upper left',
           frameon=True,
