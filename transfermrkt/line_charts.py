@@ -55,6 +55,38 @@ for player, pdata in filtered_players.items():
 
 df = pd.DataFrame(rows)
 
+# Add Enzo Villafuerte dummy data
+enzo_data = [
+    {'date': 'Aug 2018', 'club': 'Ohio University', 'market_value_eur': 10560},
+    {'date': 'Jun 2022', 'club': 'Kandle', 'market_value_eur': 18667},
+    {'date': 'Sep 2022', 'club': 'Ohio University', 'market_value_eur': 12000},
+    {'date': 'Dec 2022', 'club': 'Graduation', 'market_value_eur': 12000},
+    {'date': 'Aug 2023', 'club': 'Ohio University', 'market_value_eur': 16800},
+    {'date': 'May 2024', 'club': 'Nucor', 'market_value_eur': 27800},
+    {'date': 'Sep 2024', 'club': 'Ohio University', 'market_value_eur': 16800},
+    {'date': 'Jan 2025', 'club': 'Ohio University', 'market_value_eur': 15000}
+]
+
+enzo_rows = []
+prev_club = None
+for entry in enzo_data:
+    date = pd.to_datetime(entry['date'], format='%b %Y')
+    club = entry['club']
+    value = entry['market_value_eur']
+    label = f"€{int(value/1000)}k" if value >= 1000 else f"€{value}"
+    is_transfer = club != prev_club
+    prev_club = club
+    enzo_rows.append({
+        'player': 'Enzo Villafuerte',
+        'date': date,
+        'market_value_eur': value,
+        'market_value_label': label,
+        'club': club,
+        'is_transfer': is_transfer
+    })
+
+df = pd.concat([df, pd.DataFrame(enzo_rows)], ignore_index=True)
+
 # Create figure with dark background and larger size
 plt.figure(figsize=(15, 8))  # Increased figure size
 fig = plt.gcf()
@@ -63,7 +95,7 @@ ax = plt.gca()
 ax.set_facecolor('#1a1a1a')
 
 # Custom color palette
-colors = ['#00ff9d', '#ff6b6b']  # Bright green and coral red
+colors = ['#00ff9d', '#ff6b6b', '#4cc9f0']  # Bright green, coral red, bright blue
 
 # Format y-axis to show values in millions/thousands
 def format_currency(x, pos):
@@ -94,7 +126,7 @@ for i, (player, group) in enumerate(df.groupby('player')):
     for idx, row in group[group['is_transfer']].iterrows():
         logo = get_club_logo(row['club'])
         if logo is not None:
-            y_offset = 30 if i == 0 else 30 # -40  # in points, above/below
+            y_offset = 30 if i == 0 else 30  # in points, above/below
             ab = AnnotationBbox(
                 logo,
                 (row['date'], row['market_value_eur']),
@@ -112,11 +144,12 @@ for i, (player, group) in enumerate(df.groupby('player')):
     try:
         img = Image.open(player_img_path)
         img = img.convert('RGBA')
-        headshot = OffsetImage(img, zoom=0.24)
+        zoom = 0.26 if player == 'Enzo Villafuerte' else 0.24
+        headshot = OffsetImage(img, zoom=zoom)
         ab_headshot = AnnotationBbox(
             headshot,
             (last_row['date'], last_row['market_value_eur']),
-            xybox=(50, 0),  # 30 points to the right
+            xybox=(50, 0),  # 50 points to the right
             frameon=False,
             xycoords='data',
             boxcoords='offset points',
