@@ -94,7 +94,7 @@ for i, (player, group) in enumerate(df.groupby('player')):
     for idx, row in group[group['is_transfer']].iterrows():
         logo = get_club_logo(row['club'])
         if logo is not None:
-            y_offset = 30 if i == 0 else -40  # in points, above/below
+            y_offset = 30 if i == 0 else 30 # -40  # in points, above/below
             ab = AnnotationBbox(
                 logo,
                 (row['date'], row['market_value_eur']),
