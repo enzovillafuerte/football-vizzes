@@ -124,7 +124,10 @@ for i, (player, group) in enumerate(df.groupby('player')):
     
     # Add club logo annotations for transfers
     for idx, row in group[group['is_transfer']].iterrows():
-        logo = get_club_logo(row['club'])
+        if player == 'Enzo Villafuerte':
+            logo = get_club_logo(row['club'], zoom=0.04)  # Smaller logos for Enzo
+        else:
+            logo = get_club_logo(row['club'])  # Default size for others
         if logo is not None:
             y_offset = 30 if i == 0 else 30  # in points, above/below
             ab = AnnotationBbox(
@@ -144,7 +147,7 @@ for i, (player, group) in enumerate(df.groupby('player')):
     try:
         img = Image.open(player_img_path)
         img = img.convert('RGBA')
-        zoom = 0.26 if player == 'Enzo Villafuerte' else 0.24
+        zoom = 0.20 if player == 'Enzo Villafuerte' else 0.24
         headshot = OffsetImage(img, zoom=zoom)
         ab_headshot = AnnotationBbox(
             headshot,
