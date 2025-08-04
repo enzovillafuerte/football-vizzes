@@ -204,16 +204,6 @@ plt.savefig('transfermrkt/line_charts.png', dpi=200)
 
 # plt.show()
 
-
-
-
-
-
-
-
-
-
-
 # python transfermrkt/line_charts.py
 
 
